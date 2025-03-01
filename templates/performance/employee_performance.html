@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+
+{% block title %}Performance - {{ employee.full_name }} - HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row mb-2 mb-xl-3">
+        <div class="col-auto d-none d-sm-block">
+            <h3><strong>Performance Dashboard</strong></h3>
+        </div>
+        <div class="col-auto ms-auto text-end">
+            {% if perms.accounts.add_evaluation %}
+            <a href="{% url 'evaluation_create' %}?employee_id={{ employee.id }}" class="btn btn-primary">Add Evaluation</a>
+            {% endif %}
+            <a href="{% url 'employee_detail' employee.id %}" class="btn btn-secondary">Back to Employee</a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{{ employee.full_name }} - Performance Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Average Achievement</h5>
+                                    <div class="display-4 text-primary">{{ avg_achievement }}%</div>
+                                    <div class="progress mt-3">
+                                        <div class="progress-bar bg-{% if avg_achievement >= 100 %}success{% elif avg_achievement >= 70 %}info{% else %}danger{% endif %}" 
+                                             role="progressbar" 
+                                             style="width: {{ avg_achievement }}%" 
+                                             aria-valuenow="{{ avg_achievement }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                            {{ avg_achievement }}%
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Performance Trend</h5>
+                                    <canvas id="performanceTrendChart" height="250"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Filter Form -->
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <form method="get" class="row g-3">
+                                        <div class="col-md-4">
+                                            <label for="month" class="form-label">Month</label>
+                                            <select name="month" id="month" class="form-select">
+                                                <option value="">All Months</option>
+                                                {% for i in "123456789101112"|make_list %}
+                                                <option value="{{ i }}" {% if selected_month == i %}selected{% endif %}>{{ i }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="year" class="form-label">Year</label>
+                                            <select name="year" id="year" class="form-select">
+                                                <option value="">All Years</option>
+                                                {% for year in evaluations|dictsortreversed:"year"|values_list:"year"|distinct %}
+                                                <option value="{{ year }}" {% if selected_year == year|stringformat:"i" %}selected{% endif %}>{{ year }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-end">
+                                            <button type="submit" class="btn btn-primary w-100">Filter</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI Performance Table -->
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">KPI Performance Details</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>KPI</th>
+                                                    <th>Period</th>
+                                                    <th>Target</th>
+                                                    <th>Result</th>
+                                                    <th>Achievement</th>
+                                                    <th>Evaluated By</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for eval in evaluations %}
+                                                <tr>
+                                                    <td>{{ eval.kpi.kpi_name }}</td>
+                                                    <td>{{ eval.month }}/{{ eval.year }}</td>
+                                                    <td>{{ eval.target }}</td>
+                                                    <td>{{ eval.result }}</td>
+                                                    <td>
+                                                        <div class="progress">
+                                                            <div class="progress-bar bg-{% if eval.achievement_rate >= 100 %}success{% elif eval.achievement_rate >= 70 %}info{% else %}danger{% endif %}" 
+                                                                 role="progressbar" 
+                                                                 style="width: {{ eval.achievement_rate }}%" 
+                                                                 aria-valuenow="{{ eval.achievement_rate }}" 
+                                                                 aria-valuemin="0" 
+                                                                 aria-valuemax="100">
+                                                                {{ eval.achievement_rate }}%
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>{{ eval.evaluated_by.full_name|default:"-" }}</td>
+                                                    <td>
+                                                        {% if perms.accounts.change_evaluation %}
+                                                        <a href="{% url 'evaluation_edit' eval.id %}" class="btn btn-sm btn-info">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        {% endif %}
+                                                        {% if perms.accounts.delete_evaluation %}
+                                                        <a href="{% url 'evaluation_delete' eval.id %}" class="btn btn-sm btn-danger">
+                                                            <i class="fas fa-trash"></i>
+                                                        </a>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                {% empty %}
+                                                <tr>
+                                                    <td colspan="7" class="text-center">No evaluations found</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Performance Trend Chart
+    var performanceCtx = document.getElementById('performanceTrendChart').getContext('2d');
+    var performanceChart = new Chart(performanceCtx, {
+        type: 'line',
+        data: {
+            labels: [
+                {% for eval in evaluations|dictsort:"year,month" %}
+                "{{ eval.month }}/{{ eval.year }}",
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Achievement Rate (%)',
+                data: [
+                    {% for eval in evaluations|dictsort:"year,month" %}
+                    {{ eval.achievement_rate }},
+                    {% endfor %}
+                ],
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                borderWidth: 2,
+                pointBackgroundColor: '#4e73df',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 120,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.raw + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

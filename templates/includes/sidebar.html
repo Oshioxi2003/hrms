@@ -1,0 +1,327 @@
+<nav class="sidebar">
+    <button class="sidebar-toggle">
+        <i class="fas fa-times"></i>
+    </button>
+    
+    <div class="sidebar-header">
+        <div class="sidebar-brand">HRMS</div>
+        <div class="sidebar-subheading">Human Resource Management</div>
+    </div>
+    
+    <div class="sidebar-user">
+        <img src="https://source.unsplash.com/QAB-WJcbgJk/60x60" alt="User Avatar" class="avatar">
+        <div class="user-name">{{ request.user.username }}</div>
+        <div class="user-role">{{ request.user.role|default:"User" }}</div>
+    </div>
+    
+    <hr class="sidebar-divider">
+    
+    <div class="sidebar-heading">Core</div>
+    
+    <ul class="sidebar-nav">
+        <li class="sidebar-item">
+            <a href="{% url 'dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <i class="fas fa-fw fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        
+        <hr class="sidebar-divider">
+        
+        <div class="sidebar-heading">Human Resources</div>
+        
+        {% if perms.accounts.view_employee_data %}
+        <!-- Employee Management -->
+        <li class="sidebar-item has-submenu">
+            <a href="#" class="sidebar-link">
+                <i class="fas fa-fw fa-users"></i>
+                <span>Employee Management</span>
+            </a>
+            <ul class="submenu sidebar-dropdown collapse {% if 'employee' in request.path %}show{% endif %}">
+                <li class="sidebar-item">
+                    <a href="{% url 'employee_list' %}" class="sidebar-link">
+                        <span>All Employees</span>
+                    </a>
+                </li>
+                {% if perms.accounts.add_employee_data %}
+                <li class="sidebar-item">
+                    <a href="{% url 'employee_create' %}" class="sidebar-link">
+                        <span>Add Employee</span>
+                    </a>
+                </li>
+                {% endif %}
+                <li class="sidebar-item">
+                    <a href="{% url 'department_list' %}" class="sidebar-link">
+                        <span>Departments</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{% url 'position_list' %}" class="sidebar-link">
+                        <span>Positions</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{% url 'education_list' %}" class="sidebar-link">
+                        <span>Education Levels</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        {% endif %}
+        
+        {% if perms.accounts.view_contract %}
+        <!-- Contract Management -->
+        <li class="sidebar-item has-submenu">
+            <a href="#" class="sidebar-link">
+                <i class="fas fa-fw fa-file-contract"></i>
+                <span>Contract Management</span>
+            </a>
+            <ul class="submenu sidebar-dropdown collapse {% if 'contract' in request.path %}show{% endif %}">
+                <li class="sidebar-item">
+                    <a href="{% url 'contract_list' %}" class="sidebar-link">
+                    <li class="sidebar-item">
+                    <a href="{% url 'contract_list' %}" class="sidebar-link">
+                        <span>All Contracts</span>
+                    </a>
+                </li>
+                {% if perms.accounts.add_contract %}
+                <li class="sidebar-item">
+                    <a href="{% url 'contract_create' %}" class="sidebar-link">
+                        <span>Add Contract</span>
+                    </a>
+                </li>
+                {% endif %}
+                <li class="sidebar-item">
+                    <a href="{% url 'insurance_list' %}" class="sidebar-link">
+                        <span>Insurance & Tax</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        {% endif %}
+        
+        {% if perms.accounts.view_attendance %}
+        <!-- Attendance Management -->
+        <li class="sidebar-item has-submenu">
+            <a href="#" class="sidebar-link">
+                <i class="fas fa-fw fa-clock"></i>
+                <span>Attendance Management</span>
+            </a>
+            <ul class="submenu sidebar-dropdown collapse {% if 'attendance' in request.path %}show{% endif %}">
+                <li class="sidebar-item">
+                    <a href="{% url 'attendance_list' %}" class="sidebar-link">
+                        <span>Attendance Records</span>
+                    </a>
+                </li>
+                {% if perms.accounts.add_attendance %}
+                <li class="sidebar-item">
+                    <a href="{% url 'bulk_attendance' %}" class="sidebar-link">
+                        <span>Daily Attendance</span>
+                    </a>
+                </li>
+                {% endif %}
+                <li class="sidebar-item">
+                    <a href="{% url 'shift_list' %}" class="sidebar-link">
+                        <span>Work Shifts</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{% url 'assignment_list' %}" class="sidebar-link">
+                        <span>Shift Assignments</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        {% endif %}
+        
+        <!-- Leave Management -->
+        <li class="sidebar-item has-submenu">
+            <a href="#" class="sidebar-link">
+                <i class="fas fa-fw fa-calendar-alt"></i>
+                <span>Leave Management</span>
+            </a>
+            <ul class="submenu sidebar-dropdown collapse {% if 'leave' in request.path %}show{% endif %}">
+                <li class="sidebar-item">
+                    <a href="{% url 'leave_list' %}" class="sidebar-link">
+                        <span>Leave Requests</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{% url 'leave_create' %}" class="sidebar-link">
+                        <span>Request Leave</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        
+        {% if perms.accounts.view_salary %}
+        <!-- Salary Management -->
+        <li class="sidebar-item has-submenu">
+            <a href="#" class="sidebar-link">
+                <i class="fas fa-fw fa-money-bill-wave"></i>
+                <span>Salary Management</span>
+            </a>
+            <ul class="submenu sidebar-dropdown collapse {% if 'payroll' in request.path %}show{% endif %}">
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <span>Salary List</span>
+                    </a>
+                </li>
+                {% if perms.accounts.process_payroll %}
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <span>Process Payroll</span>
+                    </a>
+                </li>
+                {% endif %}
+                {% if perms.accounts.manage_advances %}
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <span>Salary Advances</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </li>
+        {% endif %}
+        
+        {% if perms.accounts.view_training %}
+        <!-- Training Management -->
+        <li class="sidebar-item has-submenu">
+            <a href="#" class="sidebar-link">
+                <i class="fas fa-fw fa-graduation-cap"></i>
+                <span>Training Management</span>
+            </a>
+            <ul class="submenu sidebar-dropdown collapse {% if 'training' in request.path %}show{% endif %}">
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <span>Training Courses</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <span>Participants</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        {% endif %}
+        
+        {% if perms.accounts.view_evaluation %}
+        <!-- Performance Evaluation -->
+        <li class="sidebar-item has-submenu">
+            <a href="#" class="sidebar-link">
+                <i class="fas fa-fw fa-chart-line"></i>
+                <span>Performance</span>
+            </a>
+            <ul class="submenu sidebar-dropdown collapse {% if 'performance' in request.path %}show{% endif %}">
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <span>KPI Settings</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <span>Evaluations</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        {% endif %}
+        
+        {% if perms.accounts.view_reward_discipline %}
+        <!-- Rewards and Disciplinary -->
+        <li class="sidebar-item has-submenu">
+            <a href="#" class="sidebar-link">
+                <i class="fas fa-fw fa-trophy"></i>
+                <span>Rewards & Discipline</span>
+            </a>
+            <ul class="submenu sidebar-dropdown collapse {% if 'reward' in request.path %}show{% endif %}">
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <span>All Records</span>
+                    </a>
+                </li>
+                {% if perms.accounts.add_reward_discipline %}
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <span>Add Record</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </li>
+        {% endif %}
+        
+        <hr class="sidebar-divider">
+        
+        <div class="sidebar-heading">Reports & Settings</div>
+        
+        {% if perms.accounts.view_reports %}
+        <!-- Reports -->
+        <li class="sidebar-item has-submenu">
+            <a href="#" class="sidebar-link">
+                <i class="fas fa-fw fa-chart-area"></i>
+                <span>Reports</span>
+            </a>
+            <ul class="submenu sidebar-dropdown collapse {% if 'report' in request.path %}show{% endif %}">
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <span>Employee Reports</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <span>Attendance Reports</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <span>Salary Reports</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        {% endif %}
+        
+        {% if perms.accounts.manage_users %}
+        <!-- User Management -->
+        <li class="sidebar-item has-submenu">
+            <a href="#" class="sidebar-link">
+                <i class="fas fa-fw fa-user-cog"></i>
+                <span>User Management</span>
+            </a>
+            <ul class="submenu sidebar-dropdown collapse {% if 'user' in request.path %}show{% endif %}">
+                <li class="sidebar-item">
+                    <a href="{% url 'user_list' %}" class="sidebar-link">
+                        <span>User List</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{% url 'user_create' %}" class="sidebar-link">
+                        <span>Add User</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        {% endif %}
+        
+        <!-- Settings -->
+        <li class="sidebar-item">
+            <a href="#" class="sidebar-link">
+                <i class="fas fa-fw fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </li>
+        
+        <hr class="sidebar-divider">
+        
+        <!-- Logout -->
+        <li class="sidebar-item">
+            <a href="{% url 'logout' %}" class="sidebar-link">
+                <i class="fas fa-fw fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </li>
+    </ul>
+</nav>

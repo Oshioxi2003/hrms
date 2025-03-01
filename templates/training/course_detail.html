@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ course.course_name }} - HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row mb-2 mb-xl-3">
+        <div class="col-auto d-none d-sm-block">
+            <h3><strong>Training Course Details</strong></h3>
+        </div>
+        <div class="col-auto ms-auto text-end">
+            {% if perms.accounts.change_training %}
+            <a href="{% url 'course_edit' course.id %}" class="btn btn-primary">Edit</a>
+            {% endif %}
+            {% if perms.accounts.add_training %}
+            <a href="{% url 'participation_create' %}?course_id={{ course.id }}" class="btn btn-success">Add Participant</a>
+            <a href="{% url 'bulk_participation' %}?course_id={{ course.id }}" class="btn btn-info">Bulk Add Participants</a>
+            {% endif %}
+            <a href="{% url 'course_list' %}" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Course Information -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Course Information</h5>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ course.course_name }}</h5>
+                    <span class="badge bg-{{ course.status|lower }} mb-3">{{ course.status }}</span>
+                    
+                    <div class="mb-3">
+                        <h6>Description</h6>
+                        <p>{{ course.description|default:"No description provided." }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Schedule</h6>
+                        <p><strong>Start Date:</strong> {{ course.start_date }}</p>
+                        <p><strong>End Date:</strong> {{ course.end_date }}</p>
+                        <p><strong>Duration:</strong> {{ course.start_date|timesince:course.end_date }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Location</h6>
+                        <p>{{ course.location|default:"Not specified" }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Additional Information</h6>
+                        <p><strong>Cost:</strong> ${{ course.cost|floatformat:2 }}</p>
+                        <p><strong>Organizer:</strong> {{ course.organizer|default:"Not specified" }}</p>
+                        <p><strong>Supervisor:</strong> {{ course.supervisor|default:"Not specified" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Participants -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Participants ({{ participants.count }})</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Department</th>
+                                    <th>Registration Date</th>
+                                    <th>Status</th>
+                                    <th>Score</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for participant in participants %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'employee_detail' participant.employee.id %}">
+                                            {{ participant.employee.full_name }}
+                                        </a>
+                                    </td>
+                                    <td>{{ participant.employee.department.department_name|default:"-" }}</td>
+                                    <td>{{ participant.registration_date }}</td>
+                                    <td><span class="badge bg-{{ participant.status|lower }}">{{ participant.status }}</span></td>
+                                    <td>
+                                        {% if participant.score %}
+                                        {{ participant.score }}/100
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if perms.accounts.change_training %}
+                                        <a href="{% url 'participation_edit' participant.id %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% endif %}
+                                        {% if perms.accounts.delete_training %}
+                                        <a href="{% url 'participation_delete' participant.id %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">No participants found</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Participant Statistics -->
+            {% if participants.exists %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Participant Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Status Distribution</h6>
+                                    <canvas id="statusChart" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Department Distribution</h6>
+                                    <canvas id="departmentChart" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if participants.exists %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Status distribution chart
+    var statusCtx = document.getElementById('statusChart').getContext('2d');
+    var statusData = {
+        registered: {{ participants.filter(status='Registered').count }},
+        participating: {{ participants.filter(status='Participating').count }},
+        completed: {{ participants.filter(status='Completed').count }},
+        cancelled: {{ participants.filter(status='Cancelled').count }}
+    };
+    
+    var statusChart = new Chart(statusCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Registered', 'Participating', 'Completed', 'Cancelled'],
+            datasets: [{
+                data: [statusData.registered, statusData.participating, statusData.completed, statusData.cancelled],
+                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#e74a3b'],
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: {
+                position: 'bottom'
+            }
+        }
+    });
+    
+    // Department distribution chart
+    var departmentCtx = document.getElementById('departmentChart').getContext('2d');
+    var departmentChart = new Chart(departmentCtx, {
+        type: 'bar',
+        data: {
+            labels: [
+                {% for dept in participants.values('employee__department__department_name').distinct %}
+                '{{ dept.employee__department__department_name|default:"No Department" }}',
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Participants',
+                data: [
+                    {% for dept in participants.values('employee__department__department_name').distinct %}
+                    {{ participants.filter(employee__department__department_name=dept.employee__department__department_name).count }},
+                    {% endfor %}
+                ],
+                backgroundColor: '#4e73df',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

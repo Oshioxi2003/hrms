@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}Salary Details - HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row mb-2 mb-xl-3">
+        <div class="col-auto d-none d-sm-block">
+            <h3><strong>Salary Details</strong></h3>
+        </div>
+        <div class="col-auto ms-auto text-end">
+            {% if perms.accounts.process_payroll and not salary.is_paid %}
+            <a href="{% url 'salary_edit' salary.id %}" class="btn btn-primary">Edit</a>
+            <a href="{% url 'salary_mark_as_paid' salary.id %}" class="btn btn-success">Mark as Paid</a>
+            {% endif %}
+            <a href="{% url 'salary_list' %}" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Salary Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6>Employee Information</h6>
+                            <p><strong>Name:</strong> {{ salary.employee.full_name }}</p>
+                            <p><strong>Department:</strong> {{ salary.employee.department.department_name|default:"Not assigned" }}</p>
+                            <p><strong>Position:</strong> {{ salary.employee.position.position_name|default:"Not assigned" }}</p>
+                            <p><strong>Employee ID:</strong> {{ salary.employee.id }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Salary Period</h6>
+                            <p><strong>Month:</strong> {{ salary.month }}</p>
+                            <p><strong>Year:</strong> {{ salary.year }}</p>
+                            <p><strong>Payment Status:</strong> 
+                                <span class="badge bg-{% if salary.is_paid %}success{% else %}warning{% endif %}">
+                                    {% if salary.is_paid %}Paid{% else %}Unpaid{% endif %}
+                                </span>
+                            </p>
+                            {% if salary.is_paid and salary.payment_date %}
+                            <p><strong>Payment Date:</strong> {{ salary.payment_date }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">Attendance Summary</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Work Days:</span>
+                                        <strong>{{ salary.work_days }}</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Leave Days:</span>
+                                        <strong>{{ salary.leave_days }}</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Overtime Hours:</span>
+                                        <strong>{{ salary.overtime_hours }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">Earnings</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Base Salary:</span>
+                                        <strong>${{ salary.base_salary|floatformat:2 }}</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Allowance:</span>
+                                        <strong>${{ salary.allowance|floatformat:2 }}</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Bonus:</span>
+                                        <strong>${{ salary.bonus|floatformat:2 }}</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between border-top pt-2 mt-2">
+                                        <span>Total Earnings:</span>
+                                        <strong>${{ total_earnings|floatformat:2 }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">Deductions</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Income Tax:</span>
+                                        <strong>${{ salary.income_tax|floatformat:2 }}</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Social Insurance:</span>
+                                        <strong>${{ salary.social_insurance|floatformat:2 }}</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Health Insurance:</span>
+                                        <strong>${{ salary.health_insurance|floatformat:2 }}</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Unemployment Insurance:</span>
+                                        <strong>${{ salary.unemployment_insurance|floatformat:2 }}</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Deductions:</span>
+                                        <strong>${{ salary.deductions|floatformat:2 }}</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Advance:</span>
+                                        <strong>${{ salary.advance|floatformat:2 }}</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between border-top pt-2 mt-2">
+                                        <span>Total Deductions:</span>
+                                        <strong>${{ total_deductions|floatformat:2 }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <h4>Net Salary:</h4>
+                                        <h4>${{ salary.net_salary|floatformat:2 }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if salary.notes %}
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">Notes</h6>
+                                </div>
+                                <div class="card-body">
+                                    {{ salary.notes }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

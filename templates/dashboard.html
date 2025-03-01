@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports Dashboard - HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row mb-2 mb-xl-3">
+        <div class="col-auto d-none d-sm-block">
+            <h3><strong>Reports Dashboard</strong></h3>
+        </div>
+        <div class="col-auto ms-auto text-end">
+            <span class="badge bg-primary">{{ current_month }} {{ current_year }}</span>
+        </div>
+    </div>
+    
+    <!-- Employee Statistics -->
+    <div class="row">
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Employees</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ employee_stats.total }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                New Employees (This Month)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ employee_stats.new }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-plus fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Resigned Employees (This Month)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ employee_stats.resigned }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-minus fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Department Distribution & Attendance Stats -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Department Distribution</h6>
+                    <a href="{% url 'employee_report' %}" class="btn btn-sm btn-primary">Detailed Report</a>
+                </div>
+                <div class="card-body">
+                    {% for dept in department_data %}
+                    <h4 class="small font-weight-bold">{{ dept.name }} <span class="float-end">{{ dept.count }} ({{ dept.percentage }}%)</span></h4>
+                    <div class="progress mb-4">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ dept.percentage }}%" aria-valuenow="{{ dept.percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    {% empty %}
+                    <p class="text-center">No department data available</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Attendance Statistics (This Month)</h6>
+                    <a href="{% url 'attendance_report' %}" class="btn btn-sm btn-primary">Detailed Report</a>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small">
+                        <span class="me-2">
+                            <i class="fas fa-circle text-success"></i> Present ({{ attendance_stats.present }})
+                        </span>
+                        <span class="me-2">
+                            <i class="fas fa-circle text-warning"></i> On Leave ({{ attendance_stats.on_leave }})
+                        </span>
+                        <span class="me-2">
+                            <i class="fas fa-circle text-danger"></i> Absent ({{ attendance_stats.absent }})
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Leave, Salary & Performance Stats -->
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Leave Statistics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 text-center">
+                            <h4>{{ leave_stats.count|default:"0" }}</h4>
+                            <p class="text-muted">Leave Requests</p>
+                        </div>
+                        <div class="col-6 text-center">
+                            <h4>{{ leave_stats.total_days|default:"0" }}</h4>
+                            <p class="text-muted">Total Leave Days</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'leave_report' %}" class="btn btn-primary btn-block mt-3">View Details</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Salary Statistics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 text-center">
+                            <h4>${{ salary_stats.total_salary|default:"0"|floatformat:2 }}</h4>
+                            <p class="text-muted">Total Salary</p>
+                        </div>
+                        <div class="col-6 text-center">
+                            <h4>${{ salary_stats.avg_salary|default:"0"|floatformat:2 }}</h4>
+                            <p class="text-muted">Average Salary</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'salary_report' %}" class="btn btn-primary btn-block mt-3">View Details</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Performance Statistics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 text-center">
+                            <h4>{{ performance_stats.count|default:"0" }}</h4>
+                            <p class="text-muted">Evaluations</p>
+                        </div>
+                        <div class="col-6 text-center">
+                            <h4>{{ performance_stats.avg_achievement|default:"0"|floatformat:2 }}%</h4>
+                            <p class="text-muted">Avg. Achievement</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'performance_report' %}" class="btn btn-primary btn-block mt-3">View Details</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Attendance Pie Chart
+    var ctx = document.getElementById('attendanceChart').getContext('2d');
+    var attendanceChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Present', 'On Leave', 'Absent'],
+            datasets: [{
+                data: [
+                    {{ attendance_stats.present }},
+                    {{ attendance_stats.on_leave }},
+                    {{ attendance_stats.absent }}
+                ],
+                backgroundColor: ['#1cc88a', '#f6c23e', '#e74a3b'],
+                hoverBackgroundColor: ['#17a673', '#dda20a', '#be2617'],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            tooltips: {
+                backgroundColor: "rgb(255,255,255)",
+                bodyFontColor: "#858796",
+                borderColor: '#dddfeb',
+                borderWidth: 1,
+                xPadding: 15,
+                yPadding: 15,
+                displayColors: false,
+                caretPadding: 10,
+            },
+            legend: {
+                display: false
+            },
+            cutoutPercentage: 80,
+        },
+    });
+</script>
+{% endblock %}

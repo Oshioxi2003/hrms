@@ -1,0 +1,357 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ employee.full_name }} - HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row mb-2 mb-xl-3">
+        <div class="col-auto d-none d-sm-block">
+            <h3><strong>Employee Details</strong></h3>
+        </div>
+        <div class="col-auto ms-auto text-end">
+            {% if perms.accounts.change_employee_data %}
+            <a href="{% url 'employee_edit' employee.id %}" class="btn btn-primary">Edit</a>
+            {% endif %}
+            <a href="{% url 'employee_list' %}" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Employee Profile -->
+        <div class="col-md-4 col-xl-3">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Profile Details</h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if employee.profile_image %}
+                    <img src="{{ employee.profile_image.url }}" alt="{{ employee.full_name }}" class="img-fluid rounded-circle mb-2" width="128" height="128">
+                    {% else %}
+                    <img src="https://via.placeholder.com/128" alt="{{ employee.full_name }}" class="img-fluid rounded-circle mb-2" width="128" height="128">
+                    {% endif %}
+                    <h5 class="card-title mb-0">{{ employee.full_name }}</h5>
+                    <div class="text-muted mb-2">{{ employee.position.position_name|default:"No Position" }}</div>
+                    
+                    <div>
+                        <span class="badge bg-primary">{{ employee.status }}</span>
+                        <span class="badge bg-info">{{ employee.gender|default:"Not specified" }}</span>
+                    </div>
+                </div>
+                <hr class="my-0">
+                <div class="card-body">
+                    <h5 class="h6 card-title">Contact Information</h5>
+                    <ul class="list-unstyled mb-0">
+                        {% if employee.email %}
+                        <li class="mb-1"><i class="fas fa-envelope fa-fw me-1"></i> {{ employee.email }}</li>
+                        {% endif %}
+                        {% if employee.phone %}
+                        <li class="mb-1"><i class="fas fa-phone fa-fw me-1"></i> {{ employee.phone }}</li>
+                        {% endif %}
+                        {% if employee.address %}
+                        <li class="mb-1"><i class="fas fa-home fa-fw me-1"></i> {{ employee.address }}</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <hr class="my-0">
+                <div class="card-body">
+                    <h5 class="h6 card-title">Employment Details</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-1"><i class="fas fa-building fa-fw me-1"></i> {{ employee.department.department_name|default:"No Department" }}</li>
+                        <li class="mb-1"><i class="fas fa-graduation-cap fa-fw me-1"></i> {{ employee.education.education_name|default:"Not specified" }}</li>
+                        <li class="mb-1"><i class="fas fa-calendar fa-fw me-1"></i> Hired: {{ employee.hire_date|date:"M d, Y"|default:"Not specified" }}</li>
+                        <li class="mb-1"><i class="fas fa-id-card fa-fw me-1"></i> ID: {{ employee.id_card|default:"Not specified" }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Employee Details Tabs -->
+        <div class="col-md-8 col-xl-9">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#contracts">Contracts</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#insurance">Insurance & Tax</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#attendance">Attendance</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#leave">Leave History</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#performance">Performance</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+                        <!-- Contracts Tab -->
+                        <div class="tab-pane fade show active" id="contracts" role="tabpanel">
+                            <h5 class="card-title">Employment Contracts</h5>
+                            <div class="mb-3">
+                                {% if perms.accounts.add_contract %}
+                                <a href="{% url 'contract_create' %}?employee_id={{ employee.id }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus"></i> Add Contract
+                                </a>
+                                {% endif %}
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Contract Type</th>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                            <th>Base Salary</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for contract in contracts %}
+                                        <tr>
+                                            <td>{{ contract.contract_type }}</td>
+                                            <td>{{ contract.start_date }}</td>
+                                            <td>{{ contract.end_date|default:"N/A" }}</td>
+                                            <td>${{ contract.base_salary }}</td>
+                                            <td><span class="badge bg-{{ contract.status|lower }}">{{ contract.status }}</span></td>
+                                            <td>
+                                                {% if perms.accounts.change_contract %}
+                                                <a href="{% url 'contract_edit' contract.id %}" class="btn btn-sm btn-info">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                {% endif %}
+                                                {% if contract.attached_file %}
+                                                <a href="{{ contract.attached_file.url }}" class="btn btn-sm btn-secondary" target="_blank">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                </a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="6" class="text-center">No contracts found</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Insurance & Tax Tab -->
+                        <div class="tab-pane fade" id="insurance" role="tabpanel">
+                            <h5 class="card-title">Insurance & Tax Information</h5>
+                            <div class="mb-3">
+                                {% if not insurance and perms.accounts.add_employee_data %}
+                                <a href="{% url 'insurance_create' %}?employee_id={{ employee.id }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus"></i> Add Insurance & Tax Info
+                                </a>
+                                {% endif %}
+                            </div>
+                            
+                            {% if insurance %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5 class="card-title mb-0">Social Insurance</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <p><strong>Number:</strong> {{ insurance.social_insurance_number|default:"Not provided" }}</p>
+                                            <p><strong>Date:</strong> {{ insurance.social_insurance_date|default:"Not provided" }}</p>
+                                            <p><strong>Place:</strong> {{ insurance.social_insurance_place|default:"Not provided" }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5 class="card-title mb-0">Health Insurance</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <p><strong>Number:</strong> {{ insurance.health_insurance_number|default:"Not provided" }}</p>
+                                            <p><strong>Date:</strong> {{ insurance.health_insurance_date|default:"Not provided" }}</p>
+                                            <p><strong>Place:</strong> {{ insurance.health_insurance_place|default:"Not provided" }}</p>
+                                            <p><strong>Provider:</strong> {{ insurance.health_care_provider|default:"Not provided" }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5 class="card-title mb-0">Tax Information</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <p><strong>Tax Code:</strong> {{ insurance.tax_code|default:"Not provided" }}</p>
+                                            <p><strong>Status:</strong> <span class="badge bg-{{ insurance.status|lower }}">{{ insurance.status }}</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if perms.accounts.change_employee_data %}
+                            <div class="mt-3">
+                                <a href="{% url 'insurance_edit' insurance.id %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-edit"></i> Edit Information
+                                </a>
+                            </div>
+                            {% endif %}
+                            {% else %}
+                            <div class="alert alert-info">No insurance and tax information available.</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Attendance Tab -->
+                        <div class="tab-pane fade" id="attendance" role="tabpanel">
+                            <h5 class="card-title">Recent Attendance</h5>
+                            <div class="mb-3">
+                                <a href="{% url 'attendance_create' %}?employee_id={{ employee.id }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus"></i> Add Attendance
+                                </a>
+                                <a href="{% url 'attendance_list' %}?employee={{ employee.id }}" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-list"></i> View All
+                                </a>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Time In</th>
+                                            <th>Time Out</th>
+                                            <th>Work Hours</th>
+                                            <th>Overtime</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for attendance in employee.attendance_set.all|slice:":5" %}
+                                        <tr>
+                                            <td>{{ attendance.work_date }}</td>
+                                            <td>{{ attendance.time_in|default:"-" }}</td>
+                                            <td>{{ attendance.time_out|default:"-" }}</td>
+                                            <td>{{ attendance.actual_work_hours|default:"-" }}</td>
+                                            <td>{{ attendance.overtime_hours|default:"0" }}</td>
+                                            <td><span class="badge bg-{{ attendance.status|lower }}">{{ attendance.status }}</span></td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="6" class="text-center">No attendance records found</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Leave History Tab -->
+                        <div class="tab-pane fade" id="leave" role="tabpanel">
+                            <h5 class="card-title">Leave History</h5>
+                            <div class="mb-3">
+                                <a href="{% url 'leave_create' %}?employee_id={{ employee.id }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus"></i> Request Leave
+                                </a>
+                                <a href="{% url 'leave_list' %}?employee={{ employee.id }}" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-list"></i> View All
+                                </a>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Leave Type</th>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                            <th>Days</th>
+                                            <th>Status</th>
+                                            <th>Approved By</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for leave in employee.leaverequest_set.all|slice:":5" %}
+                                        <tr>
+                                            <td>{{ leave.leave_type }}</td>
+                                            <td>{{ leave.start_date }}</td>
+                                            <td>{{ leave.end_date }}</td>
+                                            <td>{{ leave.leave_days }}</td>
+                                            <td><span class="badge bg-{{ leave.status|lower }}">{{ leave.status }}</span></td>
+                                            <td>{{ leave.approved_by.full_name|default:"-" }}</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="6" class="text-center">No leave records found</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Performance Tab -->
+                        <div class="tab-pane fade" id="performance" role="tabpanel">
+                            <h5 class="card-title">Performance Evaluations</h5>
+                            <div class="mb-3">
+                                <a href="{% url 'evaluation_create' %}?employee_id={{ employee.id }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus"></i> Add Evaluation
+                                </a>
+                                <a href="{% url 'employee_performance' employee.id %}" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-chart-line"></i> Performance Dashboard
+                                </a>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>KPI</th>
+                                            <th>Period</th>
+                                            <th>Result</th>
+                                            <th>Target</th>
+                                            <th>Achievement</th>
+                                            <th>Evaluated By</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for eval in employee.employeeevaluation_set.all|slice:":5" %}
+                                        <tr>
+                                            <td>{{ eval.kpi.kpi_name }}</td>
+                                            <td>{{ eval.month }}/{{ eval.year }}</td>
+                                            <td>{{ eval.result }}</td>
+                                            <td>{{ eval.target }}</td>
+                                            <td>
+                                                <div class="progress">
+                                                    <div class="progress-bar bg-{% if eval.achievement_rate >= 100 %}success{% elif eval.achievement_rate >= 70 %}info{% else %}danger{% endif %}" 
+                                                        role="progressbar" 
+                                                        style="width: {{ eval.achievement_rate }}%" 
+                                                        aria-valuenow="{{ eval.achievement_rate }}" 
+                                                        aria-valuemin="0" 
+                                                        aria-valuemax="100">
+                                                        {{ eval.achievement_rate }}%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{{ eval.evaluated_by.full_name|default:"-" }}</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="6" class="text-center">No evaluations found</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
