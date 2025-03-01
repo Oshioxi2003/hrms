@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Work Shift - HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row mb-2 mb-xl-3">
+        <div class="col-auto d-none d-sm-block">
+            <h3><strong>Delete Work Shift</strong></h3>
+        </div>
+        <div class="col-auto ms-auto text-end">
+            <a href="{% url 'shift_list' %}" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Confirm Deletion</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <h4 class="alert-heading">Warning!</h4>
+                <p>Are you sure you want to delete the work shift <strong>{{ shift.shift_name }}</strong>?</p>
+                <p>This action cannot be undone. All employee assignments for this shift will also be deleted.</p>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h6>Shift Name</h6>
+                    <p>{{ shift.shift_name }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Salary Coefficient</h6>
+                    <p>{{ shift.salary_coefficient }}</p>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h6>Start Time</h6>
+                    <p>{{ shift.start_time }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>End Time</h6>
+                    <p>{{ shift.end_time }}</p>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <h6>Description</h6>
+                    <p>{{ shift.description|default:"No description provided" }}</p>
+                </div>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-danger">Delete Work Shift</button>
+                        <a href="{% url 'shift_list' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

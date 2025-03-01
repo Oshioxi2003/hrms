@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row mb-2 mb-xl-3">
+        <div class="col-auto d-none d-sm-block">
+            <h3><strong>{{ title }}</strong></h3>
+        </div>
+        <div class="col-auto ms-auto text-end">
+            <a href="{% url 'reward_list' %}" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Record Information</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.employee.id_for_label }}" class="form-label">Employee *</label>
+                        {{ form.employee }}
+                        {% if form.employee.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.employee.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.type.id_for_label }}" class="form-label">Type *</label>
+                        {{ form.type }}
+                        {% if form.type.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.type.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="{{ form.content.id_for_label }}" class="form-label">Content *</label>
+                        {{ form.content }}
+                        {% if form.content.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.content.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.decision_date.id_for_label }}" class="form-label">Decision Date *</label>
+                        {{ form.decision_date }}
+                        {% if form.decision_date.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.decision_date.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.decision_number.id_for_label }}" class="form-label">Decision Number</label>
+                        {{ form.decision_number }}
+                        {% if form.decision_number.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.decision_number.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.amount.id_for_label }}" class="form-label">Amount</label>
+                        {{ form.amount }}
+                        {% if form.amount.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.amount.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.decided_by.id_for_label }}" class="form-label">Decided By</label>
+                        {{ form.decided_by }}
+                        {% if form.decided_by.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.decided_by.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.attached_file.id_for_label }}" class="form-label">Attached File</label>
+                        {{ form.attached_file }}
+                        {% if form.attached_file.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.attached_file.errors }}
+                        </div>
+                        {% endif %}
+                        {% if record and record.attached_file %}
+                        <div class="mt-2">
+                            <a href="{{ record.attached_file.url }}" target="_blank" class="btn btn-sm btn-info">
+                                <i class="fas fa-file"></i> View Current File
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.notes.id_for_label }}" class="form-label">Notes</label>
+                        {{ form.notes }}
+                        {% if form.notes.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.notes.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <a href="{% url 'reward_list' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

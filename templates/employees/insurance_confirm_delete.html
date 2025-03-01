@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Insurance & Tax Record - HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row mb-2 mb-xl-3">
+        <div class="col-auto d-none d-sm-block">
+            <h3><strong>Delete Insurance & Tax Record</strong></h3>
+        </div>
+        <div class="col-auto ms-auto text-end">
+            <a href="{% url 'insurance_list' %}" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Confirm Deletion</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <h4 class="alert-heading">Warning!</h4>
+                <p>Are you sure you want to delete the insurance & tax record for <strong>{{ insurance.employee.full_name }}</strong>?</p>
+                <p>This action cannot be undone. All insurance and tax information for this employee will be permanently deleted.</p>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h6>Employee</h6>
+                    <p>{{ insurance.employee.full_name }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Status</h6>
+                    <p>
+                        <span class="badge bg-{% if insurance.status == 'Active' %}success{% else %}danger{% endif %}">
+                            {{ insurance.status }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <h6>Social Insurance Number</h6>
+                    <p>{{ insurance.social_insurance_number|default:"Not provided" }}</p>
+                </div>
+                <div class="col-md-4">
+                    <h6>Health Insurance Number</h6>
+                    <p>{{ insurance.health_insurance_number|default:"Not provided" }}</p>
+                </div>
+                <div class="col-md-4">
+                    <h6>Tax Code</h6>
+                    <p>{{ insurance.tax_code|default:"Not provided" }}</p>
+                </div>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-danger">Delete Record</button>
+                        <a href="{% url 'insurance_list' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

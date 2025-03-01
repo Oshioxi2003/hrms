@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Daily Attendance - HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row mb-2 mb-xl-3">
+        <div class="col-auto d-none d-sm-block">
+            <h3><strong>Daily Attendance</strong></h3>
+        </div>
+        <div class="col-auto ms-auto text-end">
+            <a href="{% url 'attendance_list' %}" class="btn btn-secondary">
+                <i class="fas fa-list"></i> View All Records
+            </a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <a href="?date={{ prev_date }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-chevron-left"></i> Previous Day
+                    </a>
+                    <a href="?date={{ today }}" class="btn btn-sm btn-outline-secondary mx-2">Today</a>
+                    <a href="?date={{ next_date }}" class="btn btn-sm btn-outline-primary">
+                        Next Day <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
+                <h5 class="mb-0">Date: {{ work_date|date:"F d, Y" }}</h5>
+            </div>
+        </div>
+        <div class="card-body">
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                {{ form.work_date }}
+                
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Department</th>
+                                <th>Status</th>
+                                <th>Time In</th>
+                                <th>Time Out</th>
+                                <th>Shift</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for employee in employees %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'employee_detail' employee.id %}">{{ employee.full_name }}</a>
+                                </td>
+                                <td>{{ employee.department.department_name|default:"-" }}</td>
+                                <td>
+                                    {{ form.fields.status_employee.id }}
+                                </td>
+                                <td>
+                                    {{ form.fields.time_in_employee.id }}
+                                </td>
+                                <td>
+                                    {{ form.fields.time_out_employee.id }}
+                                </td>
+                                <td>
+                                    {{ form.fields.shift_employee.id }}
+                                </td>
+                                <td>
+                                    {{ form.fields.notes_employee.id }}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center">No employees found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Save Attendance</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // When status changes, show/hide time fields
+        $('[id^=id_status_]').on('change', function() {
+            var employeeId = $(this).attr('id').split('_')[2];
+            var status = $(this).val();
+            
+            if(status === 'Present') {
+                $(`#id_time_in_${employeeId}`).prop('disabled', false);
+                $(`#id_time_out_${employeeId}`).prop('disabled', false);
+            } else {
+                $(`#id_time_in_${employeeId}`).prop('disabled', true);
+                $(`#id_time_out_${employeeId}`).prop('disabled', true);
+            }
+        });
+        
+        // Initialize status changes
+        $('[id^=id_status_]').trigger('change');
+    });
+</script>
+{% endblock %}
+{% endblock %}

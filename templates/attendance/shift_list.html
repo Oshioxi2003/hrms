@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Work Shifts - HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row mb-2 mb-xl-3">
+        <div class="col-auto d-none d-sm-block">
+            <h3><strong>Work Shifts</strong></h3>
+        </div>
+        <div class="col-auto ms-auto text-end">
+            {% if perms.accounts.add_attendance %}
+            <a href="{% url 'shift_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Work Shift
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-md-12">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="q" placeholder="Search by shift name..." value="{{ request.GET.q|default:'' }}">
+                        </div>
+                        <div class="col-md-3">
+                            <select name="status" class="form-select">
+                                <option value="">All Status</option>
+                                <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Active</option>
+                                <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary">Filter</button>
+                            <a href="{% url 'shift_list' %}" class="btn btn-secondary">Reset</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Shift Name</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Duration</th>
+                            <th>Salary Coefficient</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for shift in shifts %}
+                        <tr>
+                            <td>{{ shift.shift_name }}</td>
+                            <td>{{ shift.start_time }}</td>
+                            <td>{{ shift.end_time }}</td>
+                            <td>
+                                {% with start_hour=shift.start_time.hour|add:shift.start_time.minute|div:60 end_hour=shift.end_time.hour|add:shift.end_time.minute|div:60 %}
+                                    {% if end_hour > start_hour %}
+                                        {{ end_hour|sub:start_hour }} hours
+                                    {% else %}
+                                        {{ end_hour|add:24|sub:start_hour }} hours
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+                            <td>{{ shift.salary_coefficient }}</td>
+                            <td>
+                                <span class="badge bg-{% if shift.status %}success{% else %}danger{% endif %}">
+                                    {% if shift.status %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    {% if perms.accounts.change_attendance %}
+                                    <a href="{% url 'shift_edit' shift.id %}" class="btn btn-sm btn-primary" data-toggle="tooltip" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if perms.accounts.delete_attendance %}
+                                    <a href="{% url 'shift_delete' shift.id %}" class="btn btn-sm btn-danger btn-delete" data-toggle="tooltip" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No work shifts found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

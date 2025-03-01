@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}Performance Evaluations - HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row mb-2 mb-xl-3">
+        <div class="col-auto d-none d-sm-block">
+            <h3><strong>Performance Evaluations</strong></h3>
+        </div>
+        <div class="col-auto ms-auto text-end">
+            {% if perms.accounts.add_evaluation %}
+            <a href="{% url 'evaluation_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Evaluation
+            </a>
+            <a href="{% url 'kpi_list' %}" class="btn btn-info">
+                <i class="fas fa-list"></i> KPI List
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Filter Evaluations</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="id_employee" class="form-label">Employee</label>
+                    {{ form.employee }}
+                </div>
+                <div class="col-md-3">
+                    <label for="id_kpi" class="form-label">KPI</label>
+                    {{ form.kpi }}
+                </div>
+                <div class="col-md-2">
+                    <label for="id_month" class="form-label">Month</label>
+                    {{ form.month }}
+                </div>
+                <div class="col-md-2">
+                    <label for="id_year" class="form-label">Year</label>
+                    {{ form.year }}
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">Filter</button>
+                    <a href="{% url 'evaluation_list' %}" class="btn btn-secondary">Reset</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card mt-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Evaluation Results</h5>
+            <div>
+                <span class="badge bg-primary">Average Achievement: {{ avg_achievement }}%</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>KPI</th>
+                            <th>Period</th>
+                            <th>Target</th>
+                            <th>Result</th>
+                            <th>Achievement</th>
+                            <th>Evaluated By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for eval in page_obj %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'employee_performance' eval.employee.id %}">{{ eval.employee.full_name }}</a>
+                            </td>
+                            <td>{{ eval.kpi.kpi_name }}</td>
+                            <td>{{ eval.month }}/{{ eval.year }}</td>
+                            <td>{{ eval.target }}</td>
+                            <td>{{ eval.result }}</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar bg-{% if eval.achievement_rate >= 100 %}success{% elif eval.achievement_rate >= 70 %}info{% else %}danger{% endif %}" 
+                                        role="progressbar" 
+                                        style="width: {{ eval.achievement_rate }}%" 
+                                        aria-valuenow="{{ eval.achievement_rate }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100">
+                                        {{ eval.achievement_rate }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ eval.evaluated_by.full_name|default:"-" }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    {% if perms.accounts.change_evaluation %}
+                                    <a href="{% url 'evaluation_edit' eval.id %}" class="btn btn-sm btn-primary" data-toggle="tooltip" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% endif %}
+                                    
+                                    {% if perms.accounts.delete_evaluation %}
+                                    <a href="{% url 'evaluation_delete' eval.id %}" class="btn btn-sm btn-danger btn-delete" data-toggle="tooltip" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">No evaluations found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

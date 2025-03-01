@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row mb-2 mb-xl-3">
+        <div class="col-auto d-none d-sm-block">
+            <h3><strong>{{ title }}</strong></h3>
+        </div>
+        <div class="col-auto ms-auto text-end">
+            <a href="{% url 'position_list' %}" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Position Information</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.position_name.id_for_label }}" class="form-label">Position Name *</label>
+                        {{ form.position_name }}
+                        {% if form.position_name.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.position_name.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.position_code.id_for_label }}" class="form-label">Position Code *</label>
+                        {{ form.position_code }}
+                        {% if form.position_code.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.position_code.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.description.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <div class="form-check form-switch">
+                            {{ form.status }}
+                            <label class="form-check-label" for="{{ form.status.id_for_label }}">Active</label>
+                        </div>
+                        {% if form.status.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.status.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <a href="{% url 'position_list' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

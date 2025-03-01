@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.models import Group
 from .forms import UserRegistrationForm, CustomLoginForm, CustomPasswordResetForm, UserProfileForm, UserManagementForm
 from .models import User, SystemLog
+from django.db import transaction
 
 class CustomLoginView(LoginView):
     form_class = CustomLoginForm
@@ -27,22 +28,31 @@ def register(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            # Add user to Employee group by default
-            employee_group = Group.objects.get(name='Employee')
-            user.groups.add(employee_group)
-            # Log user registration
-            SystemLog.objects.create(
-                action="User Registration",
-                details=f"User {user.username} registered",
-                ip=request.META.get('REMOTE_ADDR'),
-                user_agent=request.META.get('HTTP_USER_AGENT')
-            )
-            messages.success(request, 'Account created successfully. You can now login.')
-            return redirect('login')
+            try:
+                user = form.save()
+                # Add user to Employee group by default
+                employee_group, created = Group.objects.get_or_create(name='Employee')
+                user.groups.add(employee_group)
+                # Log user registration
+                SystemLog.objects.create(
+                    action="User Registration",
+                    details=f"User {user.username} registered",
+                    ip=request.META.get('REMOTE_ADDR'),
+                    user_agent=request.META.get('HTTP_USER_AGENT')
+                )
+                messages.success(request, 'Account created successfully. You can now login.')
+                return redirect('login')
+            except Exception as e:
+                # Log the error
+                print(f"Registration error: {str(e)}")
+                messages.error(request, f'An error occurred during registration: {str(e)}')
+        else:
+            # Form is not valid, errors will be displayed
+            pass
     else:
         form = UserRegistrationForm()
     return render(request, 'accounts/register.html', {'form': form})
+
 
 class CustomPasswordResetView(PasswordResetView):
     form_class = CustomPasswordResetForm
@@ -78,25 +88,44 @@ def user_create(request):
     if request.method == 'POST':
         form = UserManagementForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            # Set a default password
-            user.set_password('hrms@123')
-            user.save()
-            # Add user to appropriate group based on role
-            group = Group.objects.get(name=user.role)
-            user.groups.add(group)
-            # Log user creation
-            SystemLog.objects.create(
-                user=request.user,
-                action="User Creation",
-                object_type="User",
-                object_id=user.id,
-                details=f"Created user {user.username} with role {user.role}",
-                ip=request.META.get('REMOTE_ADDR'),
-                user_agent=request.META.get('HTTP_USER_AGENT')
-            )
-            messages.success(request, f'User {user.username} has been created successfully!')
-            return redirect('user_list')
+            with transaction.atomic():
+                user = form.save(commit=False)
+                # Set a default password
+                user.set_password('hrms@123')
+                user.save()
+                
+                # Add user to appropriate group based on role
+                try:
+                    group = Group.objects.get(name=user.role)
+                    user.groups.add(group)
+                except Group.DoesNotExist:
+                    # Run the setup_groups command to create the groups if they don't exist
+                    from django.core.management import call_command
+                    call_command('setup_groups')
+                    
+                    # Try again to add the user to the group
+                    try:
+                        group = Group.objects.get(name=user.role)
+                        user.groups.add(group)
+                    except Group.DoesNotExist:
+                        # If still fails, create just this group
+                        group = Group.objects.create(name=user.role)
+                        user.groups.add(group)
+                        messages.warning(request, f"Group '{user.role}' was created but permissions need to be set up. Please run 'python manage.py setup_groups'.")
+                
+                # Log user creation
+                SystemLog.objects.create(
+                    user=request.user,
+                    action="User Creation",
+                    object_type="User",
+                    object_id=user.id,
+                    details=f"Created user {user.username} with role {user.role}",
+                    ip=request.META.get('REMOTE_ADDR'),
+                    user_agent=request.META.get('HTTP_USER_AGENT')
+                )
+                
+                messages.success(request, f'User {user.username} has been created successfully!')
+                return redirect('user_list')
     else:
         form = UserManagementForm()
     return render(request, 'accounts/user_form.html', {'form': form, 'title': 'Create User'})
@@ -108,23 +137,42 @@ def user_edit(request, pk):
     if request.method == 'POST':
         form = UserManagementForm(request.POST, instance=user)
         if form.is_valid():
-            updated_user = form.save()
-            # Update user group if role has changed
-            updated_user.groups.clear()
-            group = Group.objects.get(name=updated_user.role)
-            updated_user.groups.add(group)
-            # Log user update
-            SystemLog.objects.create(
-                user=request.user,
-                action="User Update",
-                object_type="User",
-                object_id=updated_user.id,
-                details=f"Updated user {updated_user.username}",
-                ip=request.META.get('REMOTE_ADDR'),
-                user_agent=request.META.get('HTTP_USER_AGENT')
-            )
-            messages.success(request, f'User {updated_user.username} has been updated successfully!')
-            return redirect('user_list')
+            with transaction.atomic():
+                updated_user = form.save()
+                # Update user group if role has changed
+                updated_user.groups.clear()
+                
+                try:
+                    group = Group.objects.get(name=updated_user.role)
+                    updated_user.groups.add(group)
+                except Group.DoesNotExist:
+                    # Run the setup_groups command to create the groups if they don't exist
+                    from django.core.management import call_command
+                    call_command('setup_groups')
+                    
+                    # Try again to add the user to the group
+                    try:
+                        group = Group.objects.get(name=updated_user.role)
+                        updated_user.groups.add(group)
+                    except Group.DoesNotExist:
+                        # If still fails, create just this group
+                        group = Group.objects.create(name=updated_user.role)
+                        updated_user.groups.add(group)
+                        messages.warning(request, f"Group '{updated_user.role}' was created but permissions need to be set up. Please run 'python manage.py setup_groups'.")
+                
+                # Log user update
+                SystemLog.objects.create(
+                    user=request.user,
+                    action="User Update",
+                    object_type="User",
+                    object_id=updated_user.id,
+                    details=f"Updated user {updated_user.username}",
+                    ip=request.META.get('REMOTE_ADDR'),
+                    user_agent=request.META.get('HTTP_USER_AGENT')
+                )
+                
+                messages.success(request, f'User {updated_user.username} has been updated successfully!')
+                return redirect('user_list')
     else:
         form = UserManagementForm(instance=user)
     return render(request, 'accounts/user_form.html', {'form': form, 'title': 'Edit User', 'user': user})

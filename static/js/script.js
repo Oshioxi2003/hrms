@@ -1,27 +1,47 @@
 $(document).ready(function() {
     // Toggle sidebar
     $('.sidebar-toggle, .header-toggle').on('click', function() {
-        $('.sidebar').toggleClass('show');
-        $('.main').toggleClass('margin-left-0');
+        $('.sidebar').toggleClass('collapsed');
+        $('.main').toggleClass('expanded');
+        
+        // Store sidebar state in localStorage
+        localStorage.setItem('sidebar-collapsed', $('.sidebar').hasClass('collapsed'));
     });
+    
+    // Check localStorage for sidebar state on page load
+    if (localStorage.getItem('sidebar-collapsed') === 'true') {
+        $('.sidebar').addClass('collapsed');
+        $('.main').addClass('expanded');
+    }
     
     // Submenu toggle
     $('.has-submenu > .sidebar-link').on('click', function(e) {
         e.preventDefault();
+        
+        // If sidebar is collapsed, expand it first
+        if ($('.sidebar').hasClass('collapsed')) {
+            $('.sidebar').removeClass('collapsed');
+            $('.main').removeClass('expanded');
+            localStorage.setItem('sidebar-collapsed', 'false');
+        }
+        
         $(this).parent().toggleClass('open');
         $(this).next('.submenu').slideToggle(200);
     });
     
-    // Handle responsive behavior
-    function checkWidth() {
-        if ($(window).width() < 992) {
-            $('.sidebar').removeClass('show');
-            $('.main').addClass('margin-left-0');
-        } else {
-            $('.sidebar').addClass('show');
-            $('.main').removeClass('margin-left-0');
+    // Hover effect for collapsed sidebar
+    $('.sidebar-item').hover(
+        function() {
+            if ($('.sidebar').hasClass('collapsed')) {
+                $(this).find('.submenu').addClass('hover-show');
+            }
+        },
+        function() {
+            if ($('.sidebar').hasClass('collapsed')) {
+                $(this).find('.submenu').removeClass('hover-show');
+            }
         }
-    }
+    );
     
     // Initialize any datepickers
     if($.fn.datepicker) {
@@ -45,12 +65,6 @@ $(document).ready(function() {
             responsive: true
         });
     }
-    
-    // Initial check
-    checkWidth();
-    
-    // Check on window resize
-    $(window).resize(checkWidth);
     
     // Form validation
     $('.needs-validation').on('submit', function(event) {

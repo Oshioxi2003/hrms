@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Insurance & Tax Records - HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row mb-2 mb-xl-3">
+        <div class="col-auto d-none d-sm-block">
+            <h3><strong>Insurance & Tax Records</strong></h3>
+        </div>
+        <div class="col-auto ms-auto text-end">
+            {% if perms.accounts.add_employee_data %}
+            <a href="{% url 'insurance_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Insurance & Tax Record
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-md-12">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="q" placeholder="Search by employee name, insurance number, tax code..." value="{{ request.GET.q|default:'' }}">
+                        </div>
+                        <div class="col-md-3">
+                            <select name="status" class="form-select">
+                                <option value="">All Status</option>
+                                <option value="Active" {% if selected_status == 'Active' %}selected{% endif %}>Active</option>
+                                <option value="Inactive" {% if selected_status == 'Inactive' %}selected{% endif %}>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary">Filter</button>
+                            <a href="{% url 'insurance_list' %}" class="btn btn-secondary">Reset</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Social Insurance Number</th>
+                            <th>Health Insurance Number</th>
+                            <th>Tax Code</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for insurance in insurances %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'employee_detail' insurance.employee.id %}">{{ insurance.employee.full_name }}</a>
+                            </td>
+                            <td>{{ insurance.social_insurance_number|default:"-" }}</td>
+                            <td>{{ insurance.health_insurance_number|default:"-" }}</td>
+                            <td>{{ insurance.tax_code|default:"-" }}</td>
+                            <td>
+                                <span class="badge bg-{% if insurance.status == 'Active' %}success{% else %}danger{% endif %}">
+                                    {{ insurance.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    {% if perms.accounts.change_employee_data %}
+                                    <a href="{% url 'insurance_edit' insurance.id %}" class="btn btn-sm btn-primary" data-toggle="tooltip" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if perms.accounts.delete_employee_data %}
+                                    <a href="{% url 'insurance_delete' insurance.id %}" class="btn btn-sm btn-danger btn-delete" data-toggle="tooltip" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No insurance & tax records found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if insurances.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if insurances.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ insurances.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in insurances.paginator.page_range %}
+                        {% if insurances.number == num %}
+                        <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                        {% elif num > insurances.number|add:'-3' and num < insurances.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if insurances.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ insurances.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ insurances.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

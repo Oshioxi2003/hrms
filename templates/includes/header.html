@@ -1,3 +1,4 @@
+{% load static %}
 <header class="header">
     <div class="header-left">
         <button class="header-toggle">
@@ -69,7 +70,7 @@
                     <h6 class="dropdown-header">Message Center</h6>
                     <a class="dropdown-item d-flex align-items-center" href="#">
                         <div class="dropdown-list-image me-3">
-                            <img class="rounded-circle" src="https://source.unsplash.com/Mv9hjnEUHR4/60x60" alt="User Avatar">
+                            <img class="rounded-circle" src="{% static 'images/help.png' %}" alt="User Avatar">
                             <div class="status-indicator bg-success"></div>
                         </div>
                         <div>
@@ -79,7 +80,7 @@
                     </a>
                     <a class="dropdown-item d-flex align-items-center" href="#">
                         <div class="dropdown-list-image me-3">
-                            <img class="rounded-circle" src="https://source.unsplash.com/cssvEZacHvQ/60x60" alt="User Avatar">
+                            <img class="rounded-circle" src="{% static 'images/order.png' %}" alt="User Avatar">
                             <div class="status-indicator"></div>
                         </div>
                         <div>
@@ -96,7 +97,7 @@
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle user-dropdown d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="d-none d-lg-inline me-2 text-gray-600 small">{{ request.user.username }}</span>
-                    <img class="avatar" src="https://source.unsplash.com/QAB-WJcbgJk/60x60" alt="User Avatar">
+                    <img class="avatar" src="{% static 'images/logo_user.png' %}" alt="User Avatar">
                 </a>
                 <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="userDropdown">
                     <a class="dropdown-item" href="{% url 'profile' %}">
@@ -108,10 +109,13 @@
                         Settings
                     </a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="{% url 'logout' %}">
+                    <a class="dropdown-item" href="#" onclick="document.getElementById('logout-form-header').submit(); return false;">
                         <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>
                         Logout
                     </a>
+                    <form id="logout-form-header" action="{% url 'logout' %}" method="post" style="display: none;">
+                        {% csrf_token %}
+                    </form>
                 </div>
             </li>
         </ul>

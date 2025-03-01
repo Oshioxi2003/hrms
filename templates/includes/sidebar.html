@@ -1,3 +1,4 @@
+{% load static %}
 <nav class="sidebar">
     <button class="sidebar-toggle">
         <i class="fas fa-times"></i>
@@ -9,7 +10,7 @@
     </div>
     
     <div class="sidebar-user">
-        <img src="https://source.unsplash.com/QAB-WJcbgJk/60x60" alt="User Avatar" class="avatar">
+        <img src="{% static 'images/logo_user.png' %}" alt="User Avatar" class="avatar">
         <div class="user-name">{{ request.user.username }}</div>
         <div class="user-role">{{ request.user.role|default:"User" }}</div>
     </div>
@@ -318,7 +319,10 @@
         
         <!-- Logout -->
         <li class="sidebar-item">
-            <a href="{% url 'logout' %}" class="sidebar-link">
+            <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+                {% csrf_token %}
+            </form>
+            <a href="#" class="sidebar-link" onclick="document.getElementById('logout-form').submit(); return false;">
                 <i class="fas fa-fw fa-sign-out-alt"></i>
                 <span>Logout</span>
             </a>

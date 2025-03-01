@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row mb-2 mb-xl-3">
+        <div class="col-auto d-none d-sm-block">
+            <h3><strong>{{ title }}</strong></h3>
+        </div>
+        <div class="col-auto ms-auto text-end">
+            <a href="{% url 'insurance_list' %}" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Insurance & Tax Information</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="{{ form.employee.id_for_label }}" class="form-label">Employee *</label>
+                        {{ form.employee }}
+                        {% if form.employee.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.employee.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <h5 class="text-primary">Social Insurance Information</h5>
+                        <hr>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="{{ form.social_insurance_number.id_for_label }}" class="form-label">Social Insurance Number</label>
+                        {{ form.social_insurance_number }}
+                        {% if form.social_insurance_number.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.social_insurance_number.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.social_insurance_date.id_for_label }}" class="form-label">Issue Date</label>
+                        {{ form.social_insurance_date }}
+                        {% if form.social_insurance_date.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.social_insurance_date.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.social_insurance_place.id_for_label }}" class="form-label">Issue Place</label>
+                        {{ form.social_insurance_place }}
+                        {% if form.social_insurance_place.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.social_insurance_place.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <h5 class="text-primary">Health Insurance Information</h5>
+                        <hr>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="{{ form.health_insurance_number.id_for_label }}" class="form-label">Health Insurance Number</label>
+                        {{ form.health_insurance_number }}
+                        {% if form.health_insurance_number.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.health_insurance_number.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.health_insurance_date.id_for_label }}" class="form-label">Issue Date</label>
+                        {{ form.health_insurance_date }}
+                        {% if form.health_insurance_date.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.health_insurance_date.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.health_insurance_place.id_for_label }}" class="form-label">Issue Place</label>
+                        {{ form.health_insurance_place }}
+                        {% if form.health_insurance_place.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.health_insurance_place.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="{{ form.health_care_provider.id_for_label }}" class="form-label">Health Care Provider</label>
+                        {{ form.health_care_provider }}
+                        {% if form.health_care_provider.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.health_care_provider.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <h5 class="text-primary">Tax Information</h5>
+                        <hr>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.tax_code.id_for_label }}" class="form-label">Tax Code</label>
+                        {{ form.tax_code }}
+                        {% if form.tax_code.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.tax_code.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.status.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <a href="{% url 'insurance_list' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

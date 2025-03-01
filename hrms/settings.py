@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Custom apps
-    'accounts',
+    'accounts.apps.AccountsConfig',
     'employees',
     'attendance',
     'payroll',

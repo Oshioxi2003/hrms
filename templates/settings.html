@@ -1,0 +1,349 @@
+{% extends 'base.html' %}
+
+{% block title %}System Settings - HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row mb-2 mb-xl-3">
+        <div class="col-auto d-none d-sm-block">
+            <h3><strong>System Settings</strong></h3>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Settings Menu</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" role="tablist">
+                        <a class="list-group-item list-group-item-action active" data-bs-toggle="list" href="#general" role="tab">
+                            General Settings
+                        </a>
+                        <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#email" role="tab">
+                            Email Configuration
+                        </a>
+                        <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#payroll" role="tab">
+                            Payroll Settings
+                        </a>
+                        <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#backup" role="tab">
+                            Backup & Restore
+                        </a>
+                        <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#appearance" role="tab">
+                            Appearance
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="tab-content">
+                <!-- General Settings -->
+                <div class="tab-pane fade show active" id="general" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">General Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="company_name" class="form-label">Company Name</label>
+                                        <input type="text" class="form-control" id="company_name" value="Your Company Name">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="company_address" class="form-label">Company Address</label>
+                                        <input type="text" class="form-control" id="company_address" value="123 Business Street, City">
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="company_phone" class="form-label">Company Phone</label>
+                                        <input type="text" class="form-control" id="company_phone" value="+1 (123) 456-7890">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="company_email" class="form-label">Company Email</label>
+                                        <input type="email" class="form-control" id="company_email" value="info@yourcompany.com">
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="default_timezone" class="form-label">Default Timezone</label>
+                                        <select class="form-select" id="default_timezone">
+                                            <option value="UTC">UTC</option>
+                                            <option value="America/New_York">Eastern Time (US & Canada)</option>
+                                            <option value="America/Chicago">Central Time (US & Canada)</option>
+                                            <option value="America/Denver">Mountain Time (US & Canada)</option>
+                                            <option value="America/Los_Angeles">Pacific Time (US & Canada)</option>
+                                            <option value="Europe/London">London</option>
+                                            <option value="Asia/Tokyo">Tokyo</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="date_format" class="form-label">Date Format</label>
+                                        <select class="form-select" id="date_format">
+                                            <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                            <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                            <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <label for="company_logo" class="form-label">Company Logo</label>
+                                        <input type="file" class="form-control" id="company_logo">
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Email Configuration -->
+                <div class="tab-pane fade" id="email" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Email Configuration</h5>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="smtp_server" class="form-label">SMTP Server</label>
+                                        <input type="text" class="form-control" id="smtp_server" value="smtp.gmail.com">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="smtp_port" class="form-label">SMTP Port</label>
+                                        <input type="text" class="form-control" id="smtp_port" value="587">
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="smtp_username" class="form-label">SMTP Username</label>
+                                        <input type="text" class="form-control" id="smtp_username" value="your-email@gmail.com">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="smtp_password" class="form-label">SMTP Password</label>
+                                        <input type="password" class="form-control" id="smtp_password" value="********">
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="email_from" class="form-label">From Email</label>
+                                        <input type="email" class="form-control" id="email_from" value="hr@yourcompany.com">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="email_from_name" class="form-label">From Name</label>
+                                        <input type="text" class="form-control" id="email_from_name" value="HR Department">
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="use_tls" checked>
+                                            <label class="form-check-label" for="use_tls">Use TLS</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <button type="button" class="btn btn-info">Test Connection</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payroll Settings -->
+                <div class="tab-pane fade" id="payroll" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Payroll Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="pay_period" class="form-label">Pay Period</label>
+                                        <select class="form-select" id="pay_period">
+                                            <option value="monthly">Monthly</option>
+                                            <option value="bi-weekly">Bi-weekly</option>
+                                            <option value="weekly">Weekly</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="currency" class="form-label">Currency</label>
+                                        <select class="form-select" id="currency">
+                                            <option value="USD">USD ($)</option>
+                                            <option value="EUR">EUR (€)</option>
+                                            <option value="GBP">GBP (£)</option>
+                                            <option value="JPY">JPY (¥)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label for="social_insurance_rate" class="form-label">Social Insurance Rate (%)</label>
+                                        <input type="number" class="form-control" id="social_insurance_rate" value="8" min="0" max="100" step="0.01">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="health_insurance_rate" class="form-label">Health Insurance Rate (%)</label>
+                                        <input type="number" class="form-control" id="health_insurance_rate" value="1.5" min="0" max="100" step="0.01">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="unemployment_insurance_rate" class="form-label">Unemployment Insurance Rate (%)</label>
+                                        <input type="number" class="form-control" id="unemployment_insurance_rate" value="1" min="0" max="100" step="0.01">
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="overtime_rate" class="form-label">Overtime Rate</label>
+                                        <input type="number" class="form-control" id="overtime_rate" value="1.5" min="1" max="3" step="0.1">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="tax_calculation_method" class="form-label">Tax Calculation Method</label>
+                                        <select class="form-select" id="tax_calculation_method">
+                                            <option value="progressive">Progressive</option>
+                                            <option value="flat">Flat Rate</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Backup & Restore -->
+                <div class="tab-pane fade" id="backup" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Backup & Restore</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-4">
+                                <div class="col-md-12">
+                                    <h6>Database Backup</h6>
+                                    <p>Create a backup of your database. This will include all employee data, attendance records, salaries, etc.</p>
+                                    <button type="button" class="btn btn-primary">Create Backup</button>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-12">
+                                    <h6>Automatic Backups</h6>
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="auto_backup" checked>
+                                        <label class="form-check-label" for="auto_backup">Enable Automatic Backups</label>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="backup_frequency" class="form-label">Backup Frequency</label>
+                                            <select class="form-select" id="backup_frequency">
+                                                <option value="daily">Daily</option>
+                                                <option value="weekly" selected>Weekly</option>
+                                                <option value="monthly">Monthly</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="backup_retention" class="form-label">Backup Retention (days)</label>
+                                            <input type="number" class="form-control" id="backup_retention" value="30" min="1">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h6>Restore Database</h6>
+                                    <p class="text-danger">Warning: Restoring a backup will overwrite all current data. This action cannot be undone.</p>
+                                    <div class="mb-3">
+                                        <label for="restore_file" class="form-label">Select Backup File to Restore</label>
+                                        <input type="file" class="form-control" id="restore_file">
+                                    </div>
+                                    <button type="button" class="btn btn-danger">Restore Backup</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Appearance -->
+                <div class="tab-pane fade" id="appearance" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Appearance Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="theme" class="form-label">Theme</label>
+                                        <select class="form-select" id="theme">
+                                            <option value="light">Light</option>
+                                            <option value="dark">Dark</option>
+                                            <option value="auto">Auto (System Preference)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="primary_color" class="form-label">Primary Color</label>
+                                        <input type="color" class="form-control form-control-color" id="primary_color" value="#4e73df">
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="sidebar_color" class="form-label">Sidebar Color</label>
+                                        <select class="form-select" id="sidebar_color">
+                                            <option value="dark">Dark</option>
+                                            <option value="light">Light</option>
+                                            <option value="primary">Primary</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="table_style" class="form-label">Table Style</label>
+                                        <select class="form-select" id="table_style">
+                                            <option value="striped">Striped</option>
+                                            <option value="bordered">Bordered</option>
+                                            <option value="hover">Hover</option>
+                                            <option value="condensed">Condensed</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="show_animations" checked>
+                                            <label class="form-check-label" for="show_animations">Enable Animations</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <button type="button" class="btn btn-secondary">Reset to Defaults</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
