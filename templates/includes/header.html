@@ -1,116 +1,150 @@
 {% load static %}
 <header class="header">
     <div class="header-left">
-        <button class="header-toggle">
+        <button class="header-toggle" id="sidebarToggle">
             <i class="fas fa-bars"></i>
         </button>
         
-        <div class="header-search d-none d-md-block">
-            <form action="#" method="get">
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search for...">
+        <div class="header-search d-none d-lg-block">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search...">
+                <button class="search-btn">
                     <i class="fas fa-search"></i>
-                </div>
-            </form>
+                </button>
+            </div>
         </div>
     </div>
     
     <div class="header-right">
-        <ul class="header-nav d-flex list-unstyled mb-0">
+        <ul class="header-nav">
+            <!-- Notifications Dropdown -->
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-bell fa-fw"></i>
-                    <span class="badge bg-danger badge-counter">3+</span>
+                <a class="nav-link" href="#" id="alertsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="nav-icon-container">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge-counter">3</span>
+                    </div>
                 </a>
-                <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="alertsDropdown">
-                    <h6 class="dropdown-header">Alerts Center</h6>
-                    <a class="dropdown-item d-flex align-items-center" href="#">
-                        <div class="me-3">
-                            <div class="icon-circle bg-primary">
+                <div class="dropdown-menu dropdown-notifications" aria-labelledby="alertsDropdown">
+                    <div class="dropdown-header">
+                        <span>Notifications</span>
+                        <a href="#" class="dropdown-header-link">Mark all as read</a>
+                    </div>
+                    <div class="notifications-body">
+                        <a class="notification-item unread" href="#">
+                            <div class="notification-icon bg-primary">
                                 <i class="fas fa-file-alt text-white"></i>
                             </div>
-                        </div>
-                        <div>
-                            <div class="small text-gray-500">December 12, 2023</div>
-                            <span class="font-weight-bold">A new monthly report is ready to download!</span>
-                        </div>
-                    </a>
-                    <a class="dropdown-item d-flex align-items-center" href="#">
-                        <div class="me-3">
-                            <div class="icon-circle bg-success">
+                            <div class="notification-content">
+                                <p class="notification-title">Monthly report ready</p>
+                                <p class="notification-text">The December 2023 report is ready to download</p>
+                                <span class="notification-time"><i class="far fa-clock me-1"></i>2 hours ago</span>
+                            </div>
+                        </a>
+                        <a class="notification-item" href="#">
+                            <div class="notification-icon bg-success">
                                 <i class="fas fa-user-plus text-white"></i>
                             </div>
-                        </div>
-                        <div>
-                            <div class="small text-gray-500">December 7, 2023</div>
-                            New employee John Doe has been added!
-                        </div>
-                    </a>
-                    <a class="dropdown-item d-flex align-items-center" href="#">
-                        <div class="me-3">
-                            <div class="icon-circle bg-warning">
+                            <div class="notification-content">
+                                <p class="notification-title">New employee added</p>
+                                <p class="notification-text">John Doe has been added to the system</p>
+                                <span class="notification-time"><i class="far fa-clock me-1"></i>1 day ago</span>
+                            </div>
+                        </a>
+                        <a class="notification-item" href="#">
+                            <div class="notification-icon bg-warning">
                                 <i class="fas fa-exclamation-triangle text-white"></i>
                             </div>
-                        </div>
-                        <div>
-                            <div class="small text-gray-500">December 2, 2023</div>
-                            Spending Alert: We've noticed unusually high spending.
-                        </div>
-                    </a>
-                    <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
+                            <div class="notification-content">
+                                <p class="notification-title">System alert</p>
+                                <p class="notification-text">Unusual spending pattern detected</p>
+                                <span class="notification-time"><i class="far fa-clock me-1"></i>3 days ago</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="dropdown-footer">
+                        <a href="#">View all notifications</a>
+                    </div>
                 </div>
             </li>
             
+            <!-- Messages Dropdown -->
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-envelope fa-fw"></i>
-                    <span class="badge bg-danger badge-counter">7</span>
+                <a class="nav-link" href="#" id="messagesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="nav-icon-container">
+                        <i class="fas fa-envelope"></i>
+                        <span class="badge-counter">7</span>
+                    </div>
                 </a>
-                <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="messagesDropdown">
-                    <h6 class="dropdown-header">Message Center</h6>
-                    <a class="dropdown-item d-flex align-items-center" href="#">
-                        <div class="dropdown-list-image me-3">
-                            <img class="rounded-circle" src="{% static 'images/help.png' %}" alt="User Avatar">
-                            <div class="status-indicator bg-success"></div>
-                        </div>
-                        <div>
-                            <div class="text-truncate">Hi there! I am wondering if you can help me with a problem I've been having.</div>
-                            <div class="small text-gray-500">Emily Fowler · 58m</div>
-                        </div>
-                    </a>
-                    <a class="dropdown-item d-flex align-items-center" href="#">
-                        <div class="dropdown-list-image me-3">
-                            <img class="rounded-circle" src="{% static 'images/order.png' %}" alt="User Avatar">
-                            <div class="status-indicator"></div>
-                        </div>
-                        <div>
-                            <div class="text-truncate">I have the photos that you ordered last month.</div>
-                            <div class="small text-gray-500">Jae Chun · 1d</div>
-                        </div>
-                    </a>
-                    <a class="dropdown-item text-center small text-gray-500" href="#">Read More Messages</a>
+                <div class="dropdown-menu dropdown-notifications" aria-labelledby="messagesDropdown">
+                    <div class="dropdown-header">
+                        <span>Messages</span>
+                        <a href="#" class="dropdown-header-link">New message</a>
+                    </div>
+                    <div class="notifications-body">
+                        <a class="notification-item unread" href="#">
+                            <div class="notification-img">
+                                <img src="{% static 'images/help.png' %}" alt="User Avatar">
+                                <span class="status-indicator online"></span>
+                            </div>
+                            <div class="notification-content">
+                                <p class="notification-title">Emily Fowler</p>
+                                <p class="notification-text">Hi there! I need help with a problem I've been having.</p>
+                                <span class="notification-time"><i class="far fa-clock me-1"></i>58m ago</span>
+                            </div>
+                        </a>
+                        <a class="notification-item" href="#">
+                            <div class="notification-img">
+                                <img src="{% static 'images/order.png' %}" alt="User Avatar">
+                                <span class="status-indicator offline"></span>
+                            </div>
+                            <div class="notification-content">
+                                <p class="notification-title">Jae Chun</p>
+                                <p class="notification-text">I have the photos that you ordered last month.</p>
+                                <span class="notification-time"><i class="far fa-clock me-1"></i>1d ago</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="dropdown-footer">
+                        <a href="#">View all messages</a>
+                    </div>
                 </div>
             </li>
             
-            <div class="header-divider"></div>
-            
+            <!-- User Profile Dropdown -->
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle user-dropdown d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="d-none d-lg-inline me-2 text-gray-600 small">{{ request.user.username }}</span>
-                    <img class="avatar" src="{% static 'images/logo_user.png' %}" alt="User Avatar">
+                <a class="nav-link profile-dropdown" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="d-none d-lg-inline me-2">{{ request.user.username }}</span>
+                    <div class="profile-img">
+                        <img src="{% static 'images/logo_user.png' %}" alt="User Avatar">
+                    </div>
                 </a>
-                <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="userDropdown">
+                <div class="dropdown-menu dropdown-menu-end user-dropdown" aria-labelledby="userDropdown">
+                    <div class="dropdown-user-info">
+                        <div class="dropdown-user-avatar">
+                            <img src="{% static 'images/logo_user.png' %}" alt="User Avatar">
+                        </div>
+                        <div class="dropdown-user-details">
+                            <p class="user-name">{{ request.user.get_full_name }}</p>
+                            <p class="user-email">{{ request.user.email }}</p>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="{% url 'profile' %}">
-                        <i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i>
-                        Profile
+                        <i class="fas fa-user fa-sm fa-fw me-2"></i>
+                        My Profile
+                    </a>
+                    <a class="dropdown-item" href="">
+                        <i class="fas fa-cogs fa-sm fa-fw me-2"></i>
+                        Settings
                     </a>
                     <a class="dropdown-item" href="#">
-                        <i class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i>
-                        Settings
+                        <i class="fas fa-list fa-sm fa-fw me-2"></i>
+                        Activity Log
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="#" onclick="document.getElementById('logout-form-header').submit(); return false;">
-                        <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>
+                        <i class="fas fa-sign-out-alt fa-sm fa-fw me-2"></i>
                         Logout
                     </a>
                     <form id="logout-form-header" action="{% url 'logout' %}" method="post" style="display: none;">

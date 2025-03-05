@@ -1,331 +1,392 @@
 {% load static %}
-<nav class="sidebar">
-    <button class="sidebar-toggle">
-        <i class="fas fa-times"></i>
-    </button>
-    
+<nav class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <div class="sidebar-brand">HRMS</div>
-        <div class="sidebar-subheading">Human Resource Management</div>
+        <div class="sidebar-logo">
+            <img src="{% static 'images/hrms-logo.webp' %}" alt="HRMS Logo" onerror="this.src='{% static 'images/logo_user.png' %}'; this.onerror='';">
+            <div class="sidebar-title">
+                <h1>HRMS</h1>
+                <p>Human Resource Management</p>
+            </div>
+        </div>
+        <button class="sidebar-close d-lg-none">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
     
     <div class="sidebar-user">
-        <img src="{% static 'images/logo_user.png' %}" alt="User Avatar" class="avatar">
-        <div class="user-name">{{ request.user.username }}</div>
-        <div class="user-role">{{ request.user.role|default:"User" }}</div>
+        <div class="user-profile">
+            <div class="user-avatar">
+                <img src="{% static 'images/logo_user.png' %}" alt="User Avatar">
+                <span class="status-indicator online"></span>
+            </div>
+            <div class="user-info">
+                <h5 class="user-name">{{ request.user.username }}</h5>
+                <p class="user-role">{{ request.user.role|default:"User" }}</p>
+            </div>
+        </div>
     </div>
     
-    <hr class="sidebar-divider">
+    <div class="sidebar-search">
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" placeholder="Search menu...">
+        </div>
+    </div>
     
-    <div class="sidebar-heading">Core</div>
+    <div class="sidebar-menu">
+        <ul class="menu-list">
+            <!-- Dashboard -->
+            <li class="menu-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <a href="{% url 'dashboard' %}" class="menu-link">
+                    <i class="menu-icon fas fa-tachometer-alt"></i>
+                    <span class="menu-text">Bảng điều khiển</span>
+                </a>
+            </li>
+            
+            <!-- Divider -->
+            <li class="menu-section">
+                <div class="section-title">Human Resources</div>
+            </li>
+            
+            {% if perms.accounts.view_employee_data %}
+            <!-- Employee Management -->
+            <li class="menu-item has-submenu {% if 'employee' in request.path %}open{% endif %}">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon fas fa-users"></i>
+                    <span class="menu-text">Quản lý nhân viên</span>
+                    <i class="menu-arrow fas fa-chevron-right"></i>
+                </a>
+                <ul class="submenu {% if 'employee' in request.path %}show{% endif %}">
+                    <li class="submenu-item {% if request.resolver_match.url_name == 'employee_list' %}active{% endif %}">
+                        <a href="{% url 'employee_list' %}" class="submenu-link">
+                            <i class="fas fa-list-ul"></i>
+                            <span>Nhân viên</span>
+                        </a>
+                    </li>
+                    {% if perms.accounts.add_employee_data %}
+                    <li class="submenu-item {% if request.resolver_match.url_name == 'employee_create' %}active{% endif %}">
+                        <a href="{% url 'employee_create' %}" class="submenu-link">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Thêm nhân viên</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="submenu-item {% if request.resolver_match.url_name == 'department_list' %}active{% endif %}">
+                        <a href="{% url 'department_list' %}" class="submenu-link">
+                            <i class="fas fa-building"></i>
+                            <span>Phòng ban</span>
+                        </a>
+                    </li>
+                    <li class="submenu-item {% if request.resolver_match.url_name == 'position_list' %}active{% endif %}">
+                        <a href="{% url 'position_list' %}" class="submenu-link">
+                            <i class="fas fa-briefcase"></i>
+                            <span>Vị trí trong công ty</span>
+                        </a>
+                    </li>
+                    <li class="submenu-item {% if request.resolver_match.url_name == 'education_list' %}active{% endif %}">
+                        <a href="{% url 'education_list' %}" class="submenu-link">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Trình độ học vấn</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            {% endif %}
+            
+            {% if perms.accounts.view_contract %}
+            <!-- Contract Management -->
+            <li class="menu-item has-submenu {% if 'contract' in request.path %}open{% endif %}">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon fas fa-file-contract"></i>
+                    <span class="menu-text">Quản lý hợp đồng</span>
+                    <i class="menu-arrow fas fa-chevron-right"></i>
+                </a>
+                <ul class="submenu {% if 'contract' in request.path %}show{% endif %}">
+                    <li class="submenu-item {% if request.resolver_match.url_name == 'contract_list' %}active{% endif %}">
+                        <a href="{% url 'contract_list' %}" class="submenu-link">
+                            <i class="fas fa-list-alt"></i>
+                            <span>Hợp đồng</span>
+                        </a>
+                    </li>
+                    {% if perms.accounts.add_contract %}
+                    <li class="submenu-item {% if request.resolver_match.url_name == 'contract_create' %}active{% endif %}">
+                        <a href="{% url 'contract_create' %}" class="submenu-link">
+                            <i class="fas fa-file-signature"></i>
+                            <span>Thêm hợp đồng</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="submenu-item {% if request.resolver_match.url_name == 'insurance_list' %}active{% endif %}">
+                        <a href="{% url 'insurance_list' %}" class="submenu-link">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Bảo hiểm và Thuế</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            {% endif %}
+            
+            {% if perms.accounts.view_attendance %}
+            <!-- Attendance Management -->
+            <li class="menu-item has-submenu {% if 'attendance' in request.path %}open{% endif %}">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon fas fa-clock"></i>
+                    <span class="menu-text">Chấm công</span>
+                    <i class="menu-arrow fas fa-chevron-right"></i>
+                </a>
+                <ul class="submenu {% if 'attendance' in request.path %}show{% endif %}">
+                    <li class="submenu-item {% if request.resolver_match.url_name == 'attendance_list' %}active{% endif %}">
+                        <a href="{% url 'attendance_list' %}" class="submenu-link">
+                            <i class="fas fa-clipboard-list"></i>
+                            <span>Bảng chấm công</span>
+                        </a>
+                    </li>
+                    {% if perms.accounts.add_attendance %}
+                    <li class="submenu-item {% if request.resolver_match.url_name == 'bulk_attendance' %}active{% endif %}">
+                        <a href="{% url 'bulk_attendance' %}" class="submenu-link">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Điểm danh hàng ngày</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="submenu-item {% if request.resolver_match.url_name == 'shift_list' %}active{% endif %}">
+                        <a href="{% url 'shift_list' %}" class="submenu-link">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>Ca làm việc</span>
+                        </a>
+                    </li>
+                    <li class="submenu-item {% if request.resolver_match.url_name == 'assignment_list' %}active{% endif %}">
+                        <a href="{% url 'assignment_list' %}" class="submenu-link">
+                            <i class="fas fa-tasks"></i>
+                            <span>Phân ca công việc</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            {% endif %}
+            
+            <!-- Leave Management -->
+            <li class="menu-item has-submenu {% if 'leave' in request.path %}open{% endif %}">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon fas fa-calendar-alt"></i>
+                    <span class="menu-text">Quản lý nghỉ phép</span>
+                    <i class="menu-arrow fas fa-chevron-right"></i>
+                </a>
+                <ul class="submenu {% if 'leave' in request.path %}show{% endif %}">
+                    <li class="submenu-item {% if request.resolver_match.url_name == 'leave_list' %}active{% endif %}">
+                        <a href="{% url 'leave_list' %}" class="submenu-link">
+                            <i class="fas fa-clipboard"></i>
+                            <span>Yêu cầu nghỉ phép</span>
+                            <span class="badge bg-primary">3</span>
+                        </a>
+                    </li>
+                    <li class="submenu-item {% if request.resolver_match.url_name == 'leave_create' %}active{% endif %}">
+                        <a href="{% url 'leave_create' %}" class="submenu-link">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Đơn xin nghỉ phép</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            
+            {% if perms.accounts.view_salary %}
+            <!-- Salary Management -->
+            <li class="menu-item has-submenu {% if 'payroll' in request.path %}open{% endif %}">
+                <a href="" class="menu-link">
+                    <i class="menu-icon fas fa-money-bill-wave"></i>
+                    <span class="menu-text">Tiền lương</span>
+                    <i class="menu-arrow fas fa-chevron-right"></i>
+                </a>
+                <ul class="submenu {% if 'payroll' in request.path %}show{% endif %}">
+                    <li class="submenu-item">
+                        <a href="{% url 'salary_list' %}" class="submenu-link">
+                            <i class="fas fa-list-ol"></i>
+                            <span>Danh sách lương</span>
+                        </a>
+                    </li>
+                    {% if perms.accounts.process_payroll %}
+                    <li class="submenu-item">
+                        <a href="{% url 'process_payroll' %}" class="submenu-link">
+                            <i class="fas fa-calculator"></i>
+                            <span>Quy trình tính lương</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perms.accounts.manage_advances %}
+                    <li class="submenu-item">
+                        <a href="#" class="submenu-link">
+                            <i class="fas fa-hand-holding-usd"></i>
+                            <span>Tiền đã ứng lương</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </li>
+            {% endif %}
+            
+            <!-- Divider -->
+            <li class="menu-section">
+                <div class="section-title">Đào tạo & Hiều suất</div>
+            </li>
+            
+            {% if perms.accounts.view_training %}
+            <!-- Training Management -->
+            <li class="menu-item has-submenu {% if 'training' in request.path %}open{% endif %}">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon fas fa-graduation-cap"></i>
+                    <span class="menu-text">Đào tạo</span>
+                    <i class="menu-arrow fas fa-chevron-right"></i>
+                </a>
+                <ul class="submenu {% if 'training' in request.path %}show{% endif %}">
+                    <li class="submenu-item">
+                        <a href="{% url 'course_list' %}" class="submenu-link">
+                            <i class="fas fa-book"></i>
+                            <span>Các khoá đào tạo</span>
+                        </a>
+                    </li>
+                    <li class="submenu-item">
+                        <a href="{% url 'participation_list' %}" class="submenu-link">
+                            <i class="fas fa-user-graduate"></i>
+                            <span>Người tham gia</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            {% endif %}
+            
+            {% if perms.accounts.view_evaluation %}
+            <!-- Performance Evaluation -->
+            <li class="menu-item has-submenu {% if 'performance' in request.path %}open{% endif %}">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon fas fa-chart-line"></i>
+                    <span class="menu-text">Hiệu suất</span>
+                    <i class="menu-arrow fas fa-chevron-right"></i>
+                </a>
+                <ul class="submenu {% if 'performance' in request.path %}show{% endif %}">
+                    <li class="submenu-item">
+                        <a href="{% url 'kpi_list' %}" class="submenu-link">
+                            <i class="fas fa-sliders-h"></i>
+                            <span>KPI</span>
+                        </a>
+                    </li>
+                    <li class="submenu-item">
+                        <a href="{% url 'evaluation_list' %}" class="submenu-link">
+                            <i class="fas fa-star-half-alt"></i>
+                            <span>Đánh giá</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            {% endif %}
+            
+            {% if perms.accounts.view_reward_discipline %}
+            <!-- Rewards and Disciplinary -->
+            <li class="menu-item has-submenu {% if 'reward' in request.path %}open{% endif %}">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon fas fa-trophy"></i>
+                    <span class="menu-text">Phần thưởng và kỷ luật</span>
+                    <i class="menu-arrow fas fa-chevron-right"></i>
+                </a>
+                <ul class="submenu {% if 'reward' in request.path %}show{% endif %}">
+                    <li class="submenu-item">
+                        <a href="{% url 'reward_list' %}" class="submenu-link">
+                            <i class="fas fa-list"></i>
+                            <span>Chi tiết thưởng & phạt</span>
+                        </a>
+                    </li>
+                    {% if perms.accounts.add_reward_discipline %}
+                    <li class="submenu-item">
+                        <a href="{% url 'reward_create' %}" class="submenu-link">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Thêm thưởng và phạt</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </li>
+            {% endif %}
+            
+            <!-- Divider -->
+            <li class="menu-section">
+                <div class="section-title">Báo cáo & Cài đặt</div>
+            </li>
+            
+            {% if perms.accounts.view_reports %}
+            <!-- Reports -->
+            <li class="menu-item has-submenu {% if 'report' in request.path %}open{% endif %}">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon fas fa-chart-area"></i>
+                    <span class="menu-text">Báo cáo</span>
+                    <i class="menu-arrow fas fa-chevron-right"></i>
+                </a>
+                <ul class="submenu {% if 'report' in request.path %}show{% endif %}">
+                    <li class="submenu-item">
+                        <a href="#" class="submenu-link">
+                            <i class="fas fa-solid fa-chart-user"></i>
+                            <span>Báo cáo nhân viên</span>
+                        </a>
+                    </li>
+                    <li class="submenu-item">
+                        <a href="#" class="submenu-link">
+                            <i class="fas fa-clipboard-check"></i>
+                            <span>Báo cáo tham dự</span>
+                        </a>
+                    </li>
+                    <li class="submenu-item">
+                        <a href="#" class="submenu-link">
+                            <i class="fas fa-dollar-sign"></i>
+                            <span>Báo cáo lương</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            {% endif %}
+            
+            {% if perms.accounts.manage_users %}
+            <!-- User Management -->
+            <li class="menu-item has-submenu {% if 'user' in request.path %}open{% endif %}">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon fas fa-user-cog"></i>
+                    <span class="menu-text">Quản lý người dùng</span>
+                    <i class="menu-arrow fas fa-chevron-right"></i>
+                </a>
+                <ul class="submenu {% if 'user' in request.path %}show{% endif %}">
+                    <li class="submenu-item {% if request.resolver_match.url_name == 'user_list' %}active{% endif %}">
+                        <a href="{% url 'user_list' %}" class="submenu-link">
+                            <i class="fas fa-users-cog"></i>
+                            <span>Danh sách người dùng</span>
+                        </a>
+                    </li>
+                    <li class="submenu-item {% if request.resolver_match.url_name == 'user_create' %}active{% endif %}">
+                        <a href="{% url 'user_create' %}" class="submenu-link">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Thêm người dùng</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            {% endif %}
+            
+            <!-- Settings -->
+            <li class="menu-item">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon fas fa-cog"></i>
+                    <span class="menu-text">Cài đặt</span>
+                </a>
+            </li>
+        </ul>
+    </div>
     
-    <ul class="sidebar-nav">
-        <li class="sidebar-item">
-            <a href="{% url 'dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                <i class="fas fa-fw fa-tachometer-alt"></i>
-                <span>Dashboard</span>
-            </a>
-        </li>
-        
-        <hr class="sidebar-divider">
-        
-        <div class="sidebar-heading">Human Resources</div>
-        
-        {% if perms.accounts.view_employee_data %}
-        <!-- Employee Management -->
-        <li class="sidebar-item has-submenu">
-            <a href="#" class="sidebar-link">
-                <i class="fas fa-fw fa-users"></i>
-                <span>Employee Management</span>
-            </a>
-            <ul class="submenu sidebar-dropdown collapse {% if 'employee' in request.path %}show{% endif %}">
-                <li class="sidebar-item">
-                    <a href="{% url 'employee_list' %}" class="sidebar-link">
-                        <span>All Employees</span>
-                    </a>
-                </li>
-                {% if perms.accounts.add_employee_data %}
-                <li class="sidebar-item">
-                    <a href="{% url 'employee_create' %}" class="sidebar-link">
-                        <span>Add Employee</span>
-                    </a>
-                </li>
-                {% endif %}
-                <li class="sidebar-item">
-                    <a href="{% url 'department_list' %}" class="sidebar-link">
-                        <span>Departments</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="{% url 'position_list' %}" class="sidebar-link">
-                        <span>Positions</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="{% url 'education_list' %}" class="sidebar-link">
-                        <span>Education Levels</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        {% endif %}
-        
-        {% if perms.accounts.view_contract %}
-        <!-- Contract Management -->
-        <li class="sidebar-item has-submenu">
-            <a href="#" class="sidebar-link">
-                <i class="fas fa-fw fa-file-contract"></i>
-                <span>Contract Management</span>
-            </a>
-            <ul class="submenu sidebar-dropdown collapse {% if 'contract' in request.path %}show{% endif %}">
-                <li class="sidebar-item">
-                    <a href="{% url 'contract_list' %}" class="sidebar-link">
-                    <li class="sidebar-item">
-                    <a href="{% url 'contract_list' %}" class="sidebar-link">
-                        <span>All Contracts</span>
-                    </a>
-                </li>
-                {% if perms.accounts.add_contract %}
-                <li class="sidebar-item">
-                    <a href="{% url 'contract_create' %}" class="sidebar-link">
-                        <span>Add Contract</span>
-                    </a>
-                </li>
-                {% endif %}
-                <li class="sidebar-item">
-                    <a href="{% url 'insurance_list' %}" class="sidebar-link">
-                        <span>Insurance & Tax</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        {% endif %}
-        
-        {% if perms.accounts.view_attendance %}
-        <!-- Attendance Management -->
-        <li class="sidebar-item has-submenu">
-            <a href="#" class="sidebar-link">
-                <i class="fas fa-fw fa-clock"></i>
-                <span>Attendance Management</span>
-            </a>
-            <ul class="submenu sidebar-dropdown collapse {% if 'attendance' in request.path %}show{% endif %}">
-                <li class="sidebar-item">
-                    <a href="{% url 'attendance_list' %}" class="sidebar-link">
-                        <span>Attendance Records</span>
-                    </a>
-                </li>
-                {% if perms.accounts.add_attendance %}
-                <li class="sidebar-item">
-                    <a href="{% url 'bulk_attendance' %}" class="sidebar-link">
-                        <span>Daily Attendance</span>
-                    </a>
-                </li>
-                {% endif %}
-                <li class="sidebar-item">
-                    <a href="{% url 'shift_list' %}" class="sidebar-link">
-                        <span>Work Shifts</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="{% url 'assignment_list' %}" class="sidebar-link">
-                        <span>Shift Assignments</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        {% endif %}
-        
-        <!-- Leave Management -->
-        <li class="sidebar-item has-submenu">
-            <a href="#" class="sidebar-link">
-                <i class="fas fa-fw fa-calendar-alt"></i>
-                <span>Leave Management</span>
-            </a>
-            <ul class="submenu sidebar-dropdown collapse {% if 'leave' in request.path %}show{% endif %}">
-                <li class="sidebar-item">
-                    <a href="{% url 'leave_list' %}" class="sidebar-link">
-                        <span>Leave Requests</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="{% url 'leave_create' %}" class="sidebar-link">
-                        <span>Request Leave</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        
-        {% if perms.accounts.view_salary %}
-        <!-- Salary Management -->
-        <li class="sidebar-item has-submenu">
-            <a href="#" class="sidebar-link">
-                <i class="fas fa-fw fa-money-bill-wave"></i>
-                <span>Salary Management</span>
-            </a>
-            <ul class="submenu sidebar-dropdown collapse {% if 'payroll' in request.path %}show{% endif %}">
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <span>Salary List</span>
-                    </a>
-                </li>
-                {% if perms.accounts.process_payroll %}
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <span>Process Payroll</span>
-                    </a>
-                </li>
-                {% endif %}
-                {% if perms.accounts.manage_advances %}
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <span>Salary Advances</span>
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
-        </li>
-        {% endif %}
-        
-        {% if perms.accounts.view_training %}
-        <!-- Training Management -->
-        <li class="sidebar-item has-submenu">
-            <a href="#" class="sidebar-link">
-                <i class="fas fa-fw fa-graduation-cap"></i>
-                <span>Training Management</span>
-            </a>
-            <ul class="submenu sidebar-dropdown collapse {% if 'training' in request.path %}show{% endif %}">
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <span>Training Courses</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <span>Participants</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        {% endif %}
-        
-        {% if perms.accounts.view_evaluation %}
-        <!-- Performance Evaluation -->
-        <li class="sidebar-item has-submenu">
-            <a href="#" class="sidebar-link">
-                <i class="fas fa-fw fa-chart-line"></i>
-                <span>Performance</span>
-            </a>
-            <ul class="submenu sidebar-dropdown collapse {% if 'performance' in request.path %}show{% endif %}">
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <span>KPI Settings</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <span>Evaluations</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        {% endif %}
-        
-        {% if perms.accounts.view_reward_discipline %}
-        <!-- Rewards and Disciplinary -->
-        <li class="sidebar-item has-submenu">
-            <a href="#" class="sidebar-link">
-                <i class="fas fa-fw fa-trophy"></i>
-                <span>Rewards & Discipline</span>
-            </a>
-            <ul class="submenu sidebar-dropdown collapse {% if 'reward' in request.path %}show{% endif %}">
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <span>All Records</span>
-                    </a>
-                </li>
-                {% if perms.accounts.add_reward_discipline %}
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <span>Add Record</span>
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
-        </li>
-        {% endif %}
-        
-        <hr class="sidebar-divider">
-        
-        <div class="sidebar-heading">Reports & Settings</div>
-        
-        {% if perms.accounts.view_reports %}
-        <!-- Reports -->
-        <li class="sidebar-item has-submenu">
-            <a href="#" class="sidebar-link">
-                <i class="fas fa-fw fa-chart-area"></i>
-                <span>Reports</span>
-            </a>
-            <ul class="submenu sidebar-dropdown collapse {% if 'report' in request.path %}show{% endif %}">
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <span>Employee Reports</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <span>Attendance Reports</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <span>Salary Reports</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        {% endif %}
-        
-        {% if perms.accounts.manage_users %}
-        <!-- User Management -->
-        <li class="sidebar-item has-submenu">
-            <a href="#" class="sidebar-link">
-                <i class="fas fa-fw fa-user-cog"></i>
-                <span>User Management</span>
-            </a>
-            <ul class="submenu sidebar-dropdown collapse {% if 'user' in request.path %}show{% endif %}">
-                <li class="sidebar-item">
-                    <a href="{% url 'user_list' %}" class="sidebar-link">
-                        <span>User List</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="{% url 'user_create' %}" class="sidebar-link">
-                        <span>Add User</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        {% endif %}
-        
-        <!-- Settings -->
-        <li class="sidebar-item">
-            <a href="#" class="sidebar-link">
-                <i class="fas fa-fw fa-cog"></i>
-                <span>Settings</span>
-            </a>
-        </li>
-        
-        <hr class="sidebar-divider">
-        
-        <!-- Logout -->
-        <li class="sidebar-item">
+    <div class="sidebar-footer">
+        <div class="sidebar-footer-content">
+            <span class="version">Version 1.0.0</span>
             <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
                 {% csrf_token %}
             </form>
-            <a href="#" class="sidebar-link" onclick="document.getElementById('logout-form').submit(); return false;">
-                <i class="fas fa-fw fa-sign-out-alt"></i>
+            <a href="#" onclick="document.getElementById('logout-form').submit(); return false;" class="logout-link">
+                <i class="fas fa-sign-out-alt"></i>
                 <span>Logout</span>
             </a>
-        </li>
-    </ul>
+        </div>
+    </div>
 </nav>
