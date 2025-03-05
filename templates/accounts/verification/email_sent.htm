@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Verification Email Sent{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center p-5">
+                    <div class="mb-4">
+                        <i class="fas fa-paper-plane text-primary" style="font-size: 5rem;"></i>
+                    </div>
+                    <h2 class="mb-3">Verification Email Sent!</h2>
+                    <p class="lead text-muted mb-4">
+                        We've sent a new verification email to <strong>{{ email }}</strong>. 
+                        Please check your inbox and click the verification link to activate your account.
+                    </p>
+                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                        <i class="fas fa-info-circle me-3 fs-4"></i>
+                        <div>
+                            The verification link will expire in 24 hours. If you don't see the email, please check your spam or junk folder.
+                        </div>
+                    </div>
+                    <a href="{% url 'login' %}" class="btn btn-primary mt-3">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -11,13 +11,33 @@ document.addEventListener('DOMContentLoaded', function() {
         return new bootstrap.Popover(popoverTriggerEl);
     });
     
-    // Sidebar Toggle
-    const sidebarToggle = document.getElementById('sidebarToggle');
+    // Sidebar Toggle in Header (Mobile)
+    const headerToggle = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.querySelector('.main-content');
     
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
+    if (headerToggle) {
+        headerToggle.addEventListener('click', function() {
+            if (window.innerWidth < 992) {
+                sidebar.classList.toggle('show');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                
+                // Store sidebar state in localStorage
+                if (sidebar.classList.contains('collapsed')) {
+                    localStorage.setItem('sidebar-collapsed', 'true');
+                } else {
+                    localStorage.setItem('sidebar-collapsed', 'false');
+                }
+            }
+        });
+    }
+    
+    // Sidebar Collapse Button (Desktop)
+    const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
+    
+    if (sidebarCollapseBtn) {
+        sidebarCollapseBtn.addEventListener('click', function() {
             sidebar.classList.toggle('collapsed');
             
             // Store sidebar state in localStorage
@@ -29,17 +49,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Check localStorage for sidebar state
+    // Check localStorage for sidebar state on page load
     if (localStorage.getItem('sidebar-collapsed') === 'true') {
         sidebar.classList.add('collapsed');
-    }
-    
-    // Mobile Sidebar Toggle
-    const mobileToggle = document.querySelector('.header-toggle');
-    if (mobileToggle) {
-        mobileToggle.addEventListener('click', function() {
-            sidebar.classList.add('show');
-        });
     }
     
     // Close Sidebar on Mobile
@@ -53,7 +65,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Close Sidebar when clicking outside on mobile
     document.addEventListener('click', function(event) {
         if (window.innerWidth < 992) {
-            if (!sidebar.contains(event.target) && !mobileToggle.contains(event.target) && sidebar.classList.contains('show')) {
+            if (!sidebar.contains(event.target) && 
+                !headerToggle.contains(event.target) && 
+                sidebar.classList.contains('show')) {
                 sidebar.classList.remove('show');
             }
         }
@@ -68,6 +82,11 @@ document.addEventListener('DOMContentLoaded', function() {
         menuLink.addEventListener('click', function(e) {
             e.preventDefault();
             
+            // If sidebar is collapsed and on desktop, don't toggle submenu on click
+            if (sidebar.classList.contains('collapsed') && window.innerWidth >= 992) {
+                return;
+            }
+            
             // Close other submenus
             menuItems.forEach(function(otherItem) {
                 if (otherItem !== item && otherItem.classList.contains('open')) {
@@ -80,6 +99,35 @@ document.addEventListener('DOMContentLoaded', function() {
             item.classList.toggle('open');
             submenu.classList.toggle('show');
         });
+        
+        // Handle hover for collapsed sidebar
+        if (window.innerWidth >= 992) {
+            item.addEventListener('mouseenter', function() {
+                if (sidebar.classList.contains('collapsed')) {
+                    const submenu = this.querySelector('.submenu');
+                    if (submenu) {
+                        // Position the submenu properly
+                        const itemRect = this.getBoundingClientRect();
+                        submenu.style.top = itemRect.top + 'px';
+                        
+                        // Open the submenu
+                        this.classList.add('open');
+                        submenu.classList.add('show');
+                    }
+                }
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                if (sidebar.classList.contains('collapsed')) {
+                    const submenu = this.querySelector('.submenu');
+                    if (submenu) {
+                        // Close the submenu
+                        this.classList.remove('open');
+                        submenu.classList.remove('show');
+                    }
+                }
+            });
+        }
     });
     
     // Sidebar Search Functionality
@@ -112,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 if (submenu) submenu.classList.add('show');
                             }
                             
-                                                        // If it's inside a submenu, show the parent menu
+                            // If it's inside a submenu, show the parent menu
                             const parentSubmenu = item.closest('.submenu');
                             if (parentSubmenu) {
                                 parentSubmenu.classList.add('show');
@@ -156,11 +204,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 menuItems.forEach(item => {
                     item.style.display = 'block';
-                    item.classList.remove('open');
                     
-                    const submenu = item.querySelector('.submenu');
-                    if (submenu) {
-                        submenu.classList.remove('show');
+                    // Don't close submenus when clearing search if not in collapsed mode
+                    if (!sidebar.classList.contains('collapsed')) {
+                        // Keep the active submenu open
+                        if (!item.classList.contains('active') && !item.querySelector('.submenu-item.active')) {
+                            item.classList.remove('open');
+                            const submenu = item.querySelector('.submenu');
+                            if (submenu) {
+                                submenu.classList.remove('show');
+                            }
+                        }
                     }
                     
                     const submenuItems = item.querySelectorAll('.submenu-item');
@@ -173,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const activeItems = document.querySelectorAll('.menu-item.active, .submenu-item.active');
                 activeItems.forEach(item => {
                     const parentMenu = item.closest('.menu-item.has-submenu');
-                    if (parentMenu) {
+                    if (parentMenu && !sidebar.classList.contains('collapsed')) {
                         parentMenu.classList.add('open');
                         const submenu = parentMenu.querySelector('.submenu');
                         if (submenu) submenu.classList.add('show');
@@ -195,10 +249,35 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // If it's a submenu item, open its parent menu
             const parentMenu = link.closest('.menu-item.has-submenu');
-            if (parentMenu) {
+            if (parentMenu && !sidebar.classList.contains('collapsed')) {
                 parentMenu.classList.add('open');
                 const submenu = parentMenu.querySelector('.submenu');
                 if (submenu) submenu.classList.add('show');
+            }
+        }
+    });
+    
+    // Adjust submenu position on window resize
+    window.addEventListener('resize', function() {
+        if (sidebar.classList.contains('collapsed') && window.innerWidth >= 992) {
+            const openSubmenu = document.querySelector('.menu-item.has-submenu.open .submenu');
+            if (openSubmenu) {
+                const parentItem = openSubmenu.closest('.menu-item');
+                if (parentItem) {
+                    const itemRect = parentItem.getBoundingClientRect();
+                    openSubmenu.style.top = itemRect.top + 'px';
+                }
+            }
+        } else if (window.innerWidth < 992) {
+            // Reset for mobile view
+            sidebar.classList.remove('collapsed');
+            if (localStorage.getItem('sidebar-collapsed') === 'true') {
+                sidebar.classList.remove('show');
+            }
+        } else {
+            // Restore collapsed state on desktop
+            if (localStorage.getItem('sidebar-collapsed') === 'true') {
+                sidebar.classList.add('collapsed');
             }
         }
     });
@@ -215,156 +294,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }, false);
     });
     
-    // Date range picker initialization
-    if (typeof daterangepicker !== 'undefined') {
-        const dateRangePickers = document.querySelectorAll('.daterangepicker-input');
-        dateRangePickers.forEach(picker => {
-            new daterangepicker(picker, {
-                opens: 'left',
-                locale: {
-                    format: 'YYYY-MM-DD'
-                }
-            });
-        });
+    // Initialize Chart.js elements if they exist
+    if (typeof Chart !== 'undefined') {
+        initializeCharts();
     }
     
-    // DataTable initialization
-    if (typeof $.fn.DataTable !== 'undefined') {
-        $('.datatable').DataTable({
-            responsive: true,
-            language: {
-                search: "",
-                searchPlaceholder: "Search...",
-                lengthMenu: "_MENU_ records per page",
-            },
-            dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
-            lengthMenu: [10, 25, 50, 100],
-            pageLength: 10
-        });
-    }
-    
-    // Select2 initialization
-    if (typeof $.fn.select2 !== 'undefined') {
-        $('.select2').select2({
-            width: '100%',
-            placeholder: 'Select an option',
-            allowClear: true
-        });
-    }
-    
-    // Initialize Chart.js elements
-    initializeCharts();
-    
-    // Calculate leave days when date changes
-    const startDateInput = document.getElementById('id_start_date');
-    const endDateInput = document.getElementById('id_end_date');
-    const leaveDaysInput = document.getElementById('id_leave_days');
-    
-    if (startDateInput && endDateInput && leaveDaysInput) {
-        [startDateInput, endDateInput].forEach(input => {
-            input.addEventListener('change', () => {
-                if (startDateInput.value && endDateInput.value) {
-                    const start = new Date(startDateInput.value);
-                    const end = new Date(endDateInput.value);
-                    const diffTime = Math.abs(end - start);
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                    
-                    if (diffDays > 0) {
-                        leaveDaysInput.value = diffDays;
-                    }
-                }
-            });
-        });
-    }
-    
-    // Attendance form: When status changes, show/hide time fields
-    const statusInputs = document.querySelectorAll('[id^=id_status_]');
-    statusInputs.forEach(input => {
-        input.addEventListener('change', () => {
-            const employeeId = input.id.split('_')[2];
-            const status = input.value;
-            
-            const timeInInput = document.getElementById(`id_time_in_${employeeId}`);
-            const timeOutInput = document.getElementById(`id_time_out_${employeeId}`);
-            
-            if (timeInInput && timeOutInput) {
-                if (status === 'Present') {
-                    timeInInput.disabled = false;
-                    timeOutInput.disabled = false;
-                } else {
-                    timeInInput.disabled = true;
-                    timeOutInput.disabled = true;
-                }
+    // Auto-hide alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            const closeBtn = alert.querySelector('.btn-close');
+            if (closeBtn) {
+                closeBtn.click();
             }
-        });
-    });
-    
-    // Confirm delete
-    const deleteButtons = document.querySelectorAll('.btn-delete');
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', e => {
-            if (!confirm('Are you sure you want to delete this item? This action cannot be undone.')) {
-                e.preventDefault();
-            }
-        });
-    });
-    
-    // Password visibility toggle
-    const passwordToggles = document.querySelectorAll('.password-toggle');
-    passwordToggles.forEach(toggle => {
-        toggle.addEventListener('click', () => {
-            const input = toggle.previousElementSibling;
-            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-            input.setAttribute('type', type);
-            
-            // Change icon
-            toggle.innerHTML = type === 'password' ? 
-                '<i class="fas fa-eye"></i>' : 
-                '<i class="fas fa-eye-slash"></i>';
-        });
-    });
-    
-    // File input preview
-    const fileInputs = document.querySelectorAll('.custom-file-input');
-    fileInputs.forEach(input => {
-        input.addEventListener('change', () => {
-            const label = input.nextElementSibling;
-            const fileName = input.files[0]?.name || 'Choose file';
-            label.textContent = fileName;
-            
-            // Image preview
-            const preview = document.querySelector(`#${input.id}-preview`);
-            if (preview && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        });
-    });
-    
-    // Notification read status
-    const notificationItems = document.querySelectorAll('.notification-item');
-    notificationItems.forEach(item => {
-        item.addEventListener('click', () => {
-            item.classList.remove('unread');
-            
-            // Update badge counter
-            const container = item.closest('.dropdown-notifications');
-            const badge = container.previousElementSibling.querySelector('.badge-counter');
-            let count = parseInt(badge.textContent);
-            
-            if (count > 0) {
-                count--;
-                badge.textContent = count > 0 ? count : '';
-                
-                if (count === 0) {
-                    badge.style.display = 'none';
-                }
-            }
-        });
+        }, 5000);
     });
 });
 

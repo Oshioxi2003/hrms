@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}Activity Details{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-card {
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+    .detail-header {
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e3e6f0;
+    }
+    .detail-body {
+        padding: 1.5rem;
+    }
+    .detail-label {
+        font-weight: 600;
+        color: #4e73df;
+        margin-bottom: 0.25rem;
+    }
+    .detail-value {
+        margin-bottom: 1.5rem;
+    }
+    .json-viewer {
+        background-color: #f8f9fa;
+        border-radius: 0.25rem;
+        padding: 1rem;
+        font-family: monospace;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    .badge-activity {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+    }
+    .activity-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    .activity-meta-item {
+        display: flex;
+        align-items: center;
+    }
+    .activity-meta-icon {
+        margin-right: 0.5rem;
+        color: #4e73df;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm detail-card">
+                <div class="detail-header">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-0">Activity Details</h4>
+                        {% if activity.activity_type == 'LOGIN' %}
+                            <span class="badge bg-success badge-activity">Login</span>
+                        {% elif activity.activity_type == 'LOGOUT' %}
+                            <span class="badge bg-secondary badge-activity">Logout</span>
+                        {% elif activity.activity_type == 'PROFILE_UPDATE' %}
+                            <span class="badge bg-primary badge-activity">Profile Update</span>
+                        {% elif activity.activity_type == 'PASSWORD_CHANGE' %}
+                            <span class="badge bg-warning badge-activity">Password Change</span>
+                        {% elif activity.activity_type == 'FAILED_LOGIN' %}
+                            <span class="badge bg-danger badge-activity">Failed Login</span>
+                        {% elif activity.activity_type == 'DATA_MODIFICATION' %}
+                            <span class="badge bg-info badge-activity">Data Modified</span>
+                        {% else %}
+                            <span class="badge bg-light text-dark badge-activity">{{ activity.get_activity_type_display }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="activity-meta">
+                        <div class="activity-meta-item">
+                            <span class="activity-meta-icon"><i class="far fa-clock"></i></span>
+                            <span>{{ activity.timestamp|date:"F d, Y H:i:s" }}</span>
+                        </div>
+                        <div class="activity-meta-item">
+                            <span class="activity-meta-icon"><i class="fas fa-user"></i></span>
+                            <span>
+                                {% if activity.user %}
+                                    <a href="{% url 'user_activity_history' activity.user.id %}" class="text-decoration-none">
+                                        {{ activity.user.username }}
+                                    </a>
+                                {% else %}
+                                    Anonymous
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% if activity.module %}
+                        <div class="activity-meta-item">
+                            <span class="activity-meta-icon"><i class="fas fa-folder"></i></span>
+                            <span>{{ activity.module }}</span>
+                        </div>
+                        {% endif %}
+                        {% if activity.ip_address %}
+                        <div class="activity-meta-item">
+                            <span class="activity-meta-icon"><i class="fas fa-network-wired"></i></span>
+                            <span>{{ activity.ip_address }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="detail-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="detail-label">Description</div>
+                            <div class="detail-value">{{ activity.description|default:"No description provided" }}</div>
+                            
+                            {% if activity.object_type %}
+                            <div class="detail-label">Object Type</div>
+                            <div class="detail-value">{{ activity.object_type }}</div>
+                            {% endif %}
+                            
+                            {% if activity.object_id %}
+                            <div class="detail-label">Object ID</div>
+                            <div class="detail-value">{{ activity.object_id }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="detail-label">Device Information</div>
+                            <div class="detail-value">
+                                {% if activity.browser or activity.os or activity.device %}
+                                    <div><strong>Browser:</strong> {{ activity.browser|default:"Unknown" }}</div>
+                                    <div><strong>Operating System:</strong> {{ activity.os|default:"Unknown" }}</div>
+                                    <div><strong>Device Type:</strong> {{ activity.device|default:"Unknown" }}</div>
+                                {% else %}
+                                    No device information available
+                                {% endif %}
+                            </div>
+                            
+                            {% if activity.user_agent %}
+                            <div class="detail-label">User Agent</div>
+                            <div class="detail-value" style="word-break: break-all;">
+                                <small class="text-muted">{{ activity.user_agent }}</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if activity.extra_data %}
+                    <div class="detail-label">Additional Data</div>
+                    <div class="detail-value">
+                        <div class="json-viewer" id="jsonViewer">
+                            <pre>{{ activity.extra_data|pprint }}</pre>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-4 text-end">
+                        <a href="javascript:history.back()" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back
+                        </a>
+                        {% if user.is_superuser %}
+                        <a href="{% url 'admin:accounts_useractivity_change' activity.id %}" class="btn btn-primary ms-2">
+                            <i class="fas fa-edit me-1"></i> Edit in Admin
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

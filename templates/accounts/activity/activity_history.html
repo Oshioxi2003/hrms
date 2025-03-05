@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+
+{% block title %}System Activity History{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    .activity-filters {
+        background-color: #f8f9fa;
+        border-radius: 0.25rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .badge-ip {
+        font-family: monospace;
+        font-size: 0.75rem;
+    }
+    .user-link {
+        text-decoration: none;
+    }
+    .user-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary bg-gradient text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-history me-2"></i> System Activity History
+            </h5>
+            <a href="{% url 'my_activity_history' %}" class="btn btn-light btn-sm">
+                <i class="fas fa-user me-1"></i> My Activity
+            </a>
+        </div>
+        <div class="card-body">
+            <!-- Advanced Search and Filter -->
+            <div class="activity-filters">
+                <form method="get" id="activity-filter-form">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input type="text" name="q" class="form-control" placeholder="Search by user, description, IP..." value="{{ query }}">
+                                <button class="btn btn-outline-primary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select name="type" class="form-select">
+                                <option value="">All Activity Types</option>
+                                {% for type_value, type_name in activity_types %}
+                                    <option value="{{ type_value }}" {% if selected_type == type_value %}selected{% endif %}>
+                                        {{ type_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="text" name="start_date" class="form-control date-picker" placeholder="Start Date" value="{{ start_date }}">
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" name="end_date" class="form-control date-picker" placeholder="End Date" value="{{ end_date }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12 text-end">
+                            {% if query or selected_type or start_date or end_date or selected_user_id %}
+                                <a href="{% url 'activity_history' %}" class="btn btn-outline-secondary me-2">
+                                    <i class="fas fa-times me-1"></i> Clear Filters
+                                </a>
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-filter me-1"></i> Apply Filters
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Activity List -->
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>User</th>
+                            <th>Activity</th>
+                            <th>Module</th>
+                            <th>Description</th>
+                            <th>IP Address</th>
+                            <th>Device Info</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for activity in page_obj %}
+                            <tr>
+                                <td>{{ activity.timestamp|date:"M d, Y" }} <br> <small class="text-muted">{{ activity.timestamp|time:"H:i:s" }}</small></td>
+                                <td>
+                                    {% if activity.user %}
+                                        <a href="{% url 'user_activity_history' activity.user.id %}" class="user-link">
+                                            {{ activity.user.username }}
+                                        </a>
+                                        {% if selected_user_id == activity.user.id|stringformat:"i" %}
+                                            <a href="{% url 'activity_history' %}" class="badge bg-secondary ms-1" title="Clear user filter">
+                                                <i class="fas fa-times"></i>
+                                            </a>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">Anonymous</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if activity.activity_type == 'LOGIN' %}
+                                        <span class="badge bg-success">Login</span>
+                                    {% elif activity.activity_type == 'LOGOUT' %}
+                                        <span class="badge bg-secondary">Logout</span>
+                                    {% elif activity.activity_type == 'PROFILE_UPDATE' %}
+                                        <span class="badge bg-primary">Profile Update</span>
+                                    {% elif activity.activity_type == 'PASSWORD_CHANGE' %}
+                                        <span class="badge bg-warning">Password Change</span>
+                                    {% elif activity.activity_type == 'FAILED_LOGIN' %}
+                                        <span class="badge bg-danger">Failed Login</span>
+                                    {% elif activity.activity_type == 'DATA_MODIFICATION' %}
+                                        <span class="badge bg-info">Data Modified</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ activity.get_activity_type_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ activity.module|default:"--" }}</td>
+                                <td>
+                                    <a href="{% url 'activity_detail' activity.id %}" class="text-decoration-none">
+                                        {{ activity.description|default:"--"|truncatechars:50 }}
+                                    </a>
+                                </td>
+                                <td><span class="badge-ip">{{ activity.ip_address|default:"--" }}</span></td>
+                                <td>
+                                    <small>
+                                        {% if activity.browser %}{{ activity.browser }}{% endif %}
+                                        {% if activity.os %} / {{ activity.os }}{% endif %}
+                                        {% if activity.device %} / {{ activity.device }}{% endif %}
+                                    </small>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="fas fa-info-circle me-2"></i> No activity records found with the current filters.
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <nav aria-label="Activity pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if selected_user_id %}&user_id={{ selected_user_id }}{% endif %}" aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if selected_user_id %}&user_id={{ selected_user_id }}{% endif %}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&laquo;&laquo;</a>
+                            </li>
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&laquo;</a>
+                            </li>
+                        {% endif %}
+
+                        {% for i in page_obj.paginator.page_range %}
+                            {% if page_obj.number == i %}
+                                <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                            {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ i }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if selected_user_id %}&user_id={{ selected_user_id }}{% endif %}">{{ i }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if selected_user_id %}&user_id={{ selected_user_id }}{% endif %}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}{% if selected_user_id %}&user_id={{ selected_user_id }}{% endif %}" aria-label="Last">
+                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&raquo;</a>
+                            </li>
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&raquo;&raquo;</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize date pickers
+        flatpickr(".date-picker", {
+            dateFormat: "Y-m-d",
+            allowInput: true,
+        });
+    });
+</script>
+{% endblock %}

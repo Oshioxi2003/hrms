@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Email Verified Successfully{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center p-5">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+                    </div>
+                    <h2 class="mb-3">Email Verified Successfully!</h2>
+                    <p class="lead text-muted mb-4">Your email has been verified and your account is now active. You can now log in to access all features of the system.</p>
+                    <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-5">
+                        <i class="fas fa-sign-in-alt me-2"></i> Log In Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
